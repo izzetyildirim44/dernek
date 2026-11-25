@@ -61,7 +61,8 @@
             <div class="evk-icerik-bar-sol">
                 @if (User.SistemMi() && dernekler.Count > 0)
                 {
-                    <form class="dernek-sec" method="post" asp-page="/Index" asp-page-handler="DernekSec">
+                    <form class="dernek-sec" method="post" action="@((ViewContext.HttpContext.Request.PathBase.Value ?? "") + "/?handler=DernekSec")">
+                        @Html.AntiForgeryToken()
                         <label>
                             <span>Çalışılan Dernek</span>
                             <select name="DernekId" onchange="this.form.submit()">

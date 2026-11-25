@@ -34,6 +34,6 @@ public class IndexModel : DernekSayfa
             Rol = User.Rol()
         };
         await GirisAraci.Ac(HttpContext, k, dernekId);
-        return RedirectToPage("/Index");
+        return LocalRedirect(Yol("/"));
     }
 }
