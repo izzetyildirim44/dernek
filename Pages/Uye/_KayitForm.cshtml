@@ -1,6 +1,6 @@
 @model DernekTakip.Pages.Uye.IndexModel
 
-<form id="uye-form" class="form" method="post" action="/Uye?handler=Kaydet">
+<form id="uye-form" class="form" method="post" action="@Model.Yol("/Uye?handler=Kaydet")">
     @Html.AntiForgeryToken()
     <h2 id="uye-pencere-baslik">@(Model.Id == 0 ? "Yeni Üye" : "Üye Düzenle")</h2>
     @if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }

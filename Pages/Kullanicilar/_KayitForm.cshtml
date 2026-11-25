@@ -1,7 +1,7 @@
 @model DernekTakip.Pages.Kullanicilar.IndexModel
 @using DernekTakip.Servisler
 
-<form class="form" method="post" action="/Kullanicilar?handler=Kaydet">
+<form class="form" method="post" action="@Model.Yol("/Kullanicilar?handler=Kaydet")">
     @Html.AntiForgeryToken()
     <h2 id="kul-pencere-baslik">@(Model.Id == 0 ? "Yeni Yetkili" : "Kullanıcı Düzenle")</h2>
     <input type="hidden" name="Id" value="@Model.Id" />
@@ -64,7 +64,7 @@
         <button type="submit">Kaydet</button>
         @if (Model.Id != 0)
         {
-            <a class="btn-ince" href="/Kullanicilar">Vazgeç</a>
+            <a class="btn-ince" href="@Model.Yol("/Kullanicilar")">Vazgeç</a>
         }
     </div>
 </form>

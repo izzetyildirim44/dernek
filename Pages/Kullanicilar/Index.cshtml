@@ -40,7 +40,7 @@ else if (Model.Id == 0)
                         }
                         else
                         {
-                            <form method="post" action="/Kullanicilar?handler=Sil" style="display:inline">
+                            <form method="post" action="@Model.Yol("/Kullanicilar?handler=Sil")" style="display:inline">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="Id" value="@k.Id" />
                                 <button class="btn-sil" type="submit">Sil</button>
@@ -63,7 +63,7 @@ else if (Model.Id == 0)
     </div>
     <script>
     document.getElementById("kul-pencere-arka")?.addEventListener("click", function (e) {
-      if (e.target === this) location.assign("/Kullanicilar");
+      if (e.target === this) location.assign(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Yol("/Kullanicilar"))));
     });
     </script>
 }

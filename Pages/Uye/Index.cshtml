@@ -27,7 +27,7 @@
     </div>
     <div class="uye-liste-sag">
         <strong class="uye-sayi">@Model.UyeSayisi</strong>
-        <form class="uye-yil" method="get" action="/Uye">
+        <form class="uye-yil" method="get" action="@Model.Yol("/Uye")">
             <input type="hidden" name="durum" value="@Model.DurumFiltre" />
             <label>Yıl
                 <select name="yil" onchange="this.form.submit()">
@@ -101,7 +101,7 @@
                 <td class="sag">@Depo.Tl(u.Odenen)</td>
                 <td class="sag @(u.Kalan > 0 ? "kalan-var" : u.Kalan < 0 ? "kalan-fazla" : null)">@Depo.TlMutlak(u.Kalan)</td>
                 <td class="uye-islem">
-                    <a class="btn-duzenle" href="/Uye/@u.Id?durum=@Uri.EscapeDataString(Model.DurumFiltre)&amp;yil=@Model.Yil">Düzenle</a>
+                    <a class="btn-duzenle" href="@Model.Yol("/Uye/" + u.Id + "?durum=" + Uri.EscapeDataString(Model.DurumFiltre) + "&yil=" + Model.Yil)">Düzenle</a>
                     <a class="btn-ince" href="@Model.OdemelerAdres(u.Id)">Ödemeler</a>
                     @if (Model.Yonetici)
                     {

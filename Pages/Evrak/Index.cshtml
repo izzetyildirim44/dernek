@@ -20,16 +20,17 @@
     </div>
     <div class="evrak-form-satir">
         <span>Üye Kabul Formu</span>
-        <a class="btn" id="evrak-kabul" href="/Uye/Kabul">Yazdır</a>
+        <a class="btn" id="evrak-kabul" href="@Model.Yol("/Uye/Kabul")">Yazdır</a>
     </div>
     <div class="evrak-form-satir">
         <span>Üye İstifa / Ayrılış Formu</span>
-        <a class="btn" id="evrak-istifa" href="/Uye/Ayrilis">Yazdır</a>
+        <a class="btn" id="evrak-istifa" href="@Model.Yol("/Uye/Ayrilis")">Yazdır</a>
     </div>
 </div>
 <script>
 (function () {
   var data = @Html.Raw(Model.AraJson);
+  var kok = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Yol("")));
   var q = document.getElementById("evrak-uye-ara");
   var liste = document.getElementById("evrak-uye-liste");
   var kabul = document.getElementById("evrak-kabul");
@@ -38,8 +39,8 @@
   var sec = 0;
   function kucuk(s) { return String(s || "").toLocaleLowerCase("tr"); }
   function bagla() {
-    kabul.href = sec ? "/Uye/Kabul/" + sec : "/Uye/Kabul";
-    istifa.href = sec ? "/Uye/Ayrilis/" + sec : "/Uye/Ayrilis";
+    kabul.href = sec ? kok + "/Uye/Kabul/" + sec : kok + "/Uye/Kabul";
+    istifa.href = sec ? kok + "/Uye/Ayrilis/" + sec : kok + "/Uye/Ayrilis";
   }
   function kapat() { liste.hidden = true; liste.replaceChildren(); }
   function yaz(hits) {

@@ -26,7 +26,7 @@
     </div>
     <div class="form-aksiyon">
         <button type="submit">Kaydet</button>
-        <a class="btn btn-ekle" href="/Dernekler?yeni=1">Ekle</a>
+        <a class="btn btn-ekle" href="@Model.Yol("/Dernekler?yeni=1")">Ekle</a>
     </div>
 </form>
 
@@ -52,7 +52,7 @@
                         }
                         else
                         {
-                            <form method="post" action="/Dernekler?handler=Sil" style="display:inline">
+                            <form method="post" action="@Model.Yol("/Dernekler?handler=Sil")" style="display:inline">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="Id" value="@d.Id" />
                                 <button class="btn-sil" type="submit">Sil</button>

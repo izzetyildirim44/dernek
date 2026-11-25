@@ -49,6 +49,16 @@ builder.Services.AddRazorPages(o =>
 var app = builder.Build();
 app.UseForwardedHeaders();
 app.UsePathBase("/dernek");
+app.Use(async (ctx, next) =>
+{
+    if (ctx.Request.Path.StartsWithSegments("/dernek", out var kalan))
+    {
+        var hedef = (ctx.Request.PathBase.Value ?? "/dernek") + (kalan.HasValue && kalan.Value.Length > 0 ? kalan.Value : "/") + ctx.Request.QueryString;
+        ctx.Response.Redirect(hedef, permanent: true);
+        return;
+    }
+    await next();
+});
 Directory.CreateDirectory(Path.Combine(app.Environment.ContentRootPath, "App_Data"));
 _ = app.Services.GetRequiredService<Depo>();
 
