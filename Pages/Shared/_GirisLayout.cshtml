@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#040711" />
+    <title>@(ViewData["Title"] is string t && t.Length > 0 ? t + " — " : "")Dernek Takip · Evrakhane .Net (.NET 10)</title>
+    <link rel="icon" href="~/img/evrakhane-logo.png" type="image/png" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="giris-govde">
+    <div class="sahne" aria-hidden="true">
+        <div class="aurora aurora-a"></div>
+        <div class="aurora aurora-b"></div>
+        <div class="aurora aurora-c"></div>
+        <div class="izgara"></div>
+    </div>
+
+    <div class="evk-auth-shell">
+        <header class="evk-komuta-bar" role="banner">
+            <a class="evk-marka" href="https://www.evrakhane.com.tr/" onclick="window.location.href=window.location.origin+'/';return false;">
+                <span class="mini-logo-kutu">
+                    <img src="~/img/evrakhane-logo.png" asp-append-version="true" width="38" height="38" alt="Evrakhane .Net" />
+                </span>
+                <span class="evk-marka-metin">
+                    <strong class="evk-marka-baslik">DERNEK TAKİP <span class="vurgu-net">.NET</span></strong>
+                    <span class="evk-marka-alt">Evrakhane .Net · STK, Üye ve Muhasebe Stüdyosu</span>
+                </span>
+            </a>
+
+            <div class="evk-komuta-sag">
+                <a class="evk-ana-link" href="https://www.evrakhane.com.tr/" onclick="window.location.href=window.location.origin+'/';return false;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="19" y1="12" x2="5" y2="12" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    <span>Ana Giriş</span>
+                </a>
+                <span class="motor-rozet" title=".NET 10 Sunucu Motoru">
+                    <span class="canli-nokta" aria-hidden="true"></span>
+                    <span>.NET 10 · Aktif</span>
+                </span>
+                <div class="zaman-kutu">
+                    <time class="saat" id="evkSaat"></time>
+                    <span class="tarih" id="evkTarih"></span>
+                </div>
+            </div>
+        </header>
+
+        <main class="giris-orta">
+            @RenderBody()
+        </main>
+
+        <footer class="alt">
+            <div class="alt-ic">
+                <span class="alt-marka">Evrakhane .Net</span>
+                <span class="nokta"></span>
+                <span>Dernek Takip Stüdyosu</span>
+                <span class="nokta"></span>
+                <span>.NET 10 Komuta Mimarisi</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    (function () {
+        var saatEl = document.getElementById("evkSaat");
+        var tarihEl = document.getElementById("evkTarih");
+        function guncelle() {
+            var d = new Date();
+            if (saatEl) saatEl.textContent = d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            if (tarihEl) tarihEl.textContent = d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+        }
+        guncelle();
+        setInterval(guncelle, 1000);
+
+        document.querySelectorAll(".sifre-goz").forEach(function (btn) {
+            if (btn.dataset.bagli) return;
+            btn.dataset.bagli = "1";
+            btn.addEventListener("click", function () {
+                var inp = this.parentElement.querySelector("input");
+                if (!inp) return;
+                var gizli = inp.type === "password";
+                inp.type = gizli ? "text" : "password";
+                this.classList.toggle("acik", gizli);
+                var yazi = gizli ? "Şifreyi gizle" : "Şifreyi göster";
+                this.setAttribute("aria-label", yazi);
+                this.setAttribute("title", yazi);
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

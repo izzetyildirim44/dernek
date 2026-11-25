@@ -1,0 +1,67 @@
+@model DernekTakip.Pages.Uye.IndexModel
+
+<form id="uye-form" class="form" method="post" action="/Uye?handler=Kaydet">
+    @Html.AntiForgeryToken()
+    <h2 id="uye-pencere-baslik">@(Model.Id == 0 ? "Yeni Üye" : "Üye Düzenle")</h2>
+    @if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <input type="hidden" name="DurumFiltre" value="@Model.DurumFiltre" />
+    <input type="hidden" name="Yil" value="@Model.Yil" />
+    <div class="grid-2">
+        <label>Ad Soyad
+            <input name="AdSoyad" value="@Model.AdSoyad" required />
+        </label>
+        <label>Grup
+            <select name="GrupId">
+                @foreach (var g in Model.Gruplar)
+                {
+                    if (g.Id == Model.GrupId)
+                    {
+                        <option value="@g.Id" selected>@g.Ad @(g.Aidatli ? "" : "(aidatsız)")</option>
+                    }
+                    else
+                    {
+                        <option value="@g.Id">@g.Ad @(g.Aidatli ? "" : "(aidatsız)")</option>
+                    }
+                }
+            </select>
+        </label>
+        <label>T.C. Kimlik No
+            <input name="Tc" value="@Model.Tc" maxlength="11" />
+        </label>
+        <label>Telefon
+            <input name="Telefon" value="@Model.Telefon" />
+        </label>
+        <label>E-posta
+            <input name="Eposta" value="@Model.Eposta" />
+        </label>
+        <label>Durum
+            <select name="Durum">
+                @foreach (var d in new[] { "Aktif", "Ayrıldı" })
+                {
+                    if (d == Model.Durum)
+                    {
+                        <option value="@d" selected>@d</option>
+                    }
+                    else
+                    {
+                        <option value="@d">@d</option>
+                    }
+                }
+            </select>
+        </label>
+        <label>Üye Giriş Tarihi
+            <input name="GirisTarih" type="date" value="@Model.GirisTarih" />
+        </label>
+        <label>Üye Ayrılış Tarihi
+            <input name="AyrilisTarih" type="date" value="@Model.AyrilisTarih" />
+        </label>
+    </div>
+    <label>Adres
+        <input name="Adres" value="@Model.Adres" />
+    </label>
+    <div class="form-aksiyon">
+        <button type="submit">Kaydet</button>
+        <a class="btn-ince" href="@Model.ListeAdres()">Vazgeç</a>
+    </div>
+</form>

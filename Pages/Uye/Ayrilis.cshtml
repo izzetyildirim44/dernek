@@ -1,0 +1,127 @@
+@page "{id:int?}"
+@model DernekTakip.Pages.Uye.AyrilisModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Üye İstifa / Ayrılış Formu";
+    var u = Model.Uye;
+    var d = Model.Dernek;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>Üye İstifa / Ayrılış Formu — @d.Ad</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        @@page { size: A4 portrait; margin: 12mm; }
+    </style>
+</head>
+<body class="kabul-sayfa">
+    <p class="no-print">
+        <button class="btn" type="button" onclick="window.print()">Yazdır</button>
+        <a class="btn-ince" href="/Evrak">Evraka Dön</a>
+    </p>
+    <div class="kabul-kagit">
+        <header class="kabul-baslik">
+            <h1>@d.Ad</h1>
+            @if (!string.IsNullOrWhiteSpace(d.Adres)) { <p>@d.Adres</p> }
+            @if (!string.IsNullOrWhiteSpace(d.Telefon)) { <p>Tel: @d.Telefon</p> }
+        </header>
+        <h2>Üye İstifa / Ayrılış Formu</h2>
+
+        <div class="kabul-blok">
+            <div class="kabul-satir">
+                <span>Adı Soyadı</span>
+                <div class="kabul-cizgi">@u?.AdSoyad</div>
+            </div>
+            <div class="kabul-iki">
+                <div class="kabul-satir">
+                    <span>T.C. Kimlik No</span>
+                    <div class="kabul-cizgi">@u?.Tc</div>
+                </div>
+                <div class="kabul-satir">
+                    <span>Üye Grubu</span>
+                    <div class="kabul-cizgi">@u?.GrupAd</div>
+                </div>
+            </div>
+            <div class="kabul-iki">
+                <div class="kabul-satir">
+                    <span>Telefon</span>
+                    <div class="kabul-cizgi">@u?.Telefon</div>
+                </div>
+                <div class="kabul-satir">
+                    <span>E-posta</span>
+                    <div class="kabul-cizgi">@u?.Eposta</div>
+                </div>
+            </div>
+            <div class="kabul-satir">
+                <span>İkametgah Adresi</span>
+                <div class="kabul-cizgi">@u?.Adres</div>
+            </div>
+            <div class="kabul-iki">
+                <div class="kabul-satir">
+                    <span>Derneğe Giriş Tarihi</span>
+                    <div class="kabul-cizgi">@AyrilisModel.TarihYazi(u?.GirisTarih)</div>
+                </div>
+                <div class="kabul-satir">
+                    <span>Üye Kayıt No</span>
+                    <div class="kabul-cizgi">@(u is null ? "" : u.Id.ToString())</div>
+                </div>
+            </div>
+            <div class="kabul-iki">
+                <div class="kabul-satir">
+                    <span>Ayrılış Tarihi</span>
+                    <div class="kabul-cizgi">@AyrilisModel.TarihYazi(u?.AyrilisTarih)</div>
+                </div>
+                <div class="kabul-satir">
+                    <span>Üye Durumu</span>
+                    <div class="kabul-cizgi">@u?.Durum</div>
+                </div>
+            </div>
+            <div class="kabul-satir">
+                <span>Ayrılış Nedeni</span>
+                <div class="kabul-cizgi"></div>
+            </div>
+        </div>
+
+        <div class="kabul-beyan">
+            <p>Dernek üyeliğimden kendi isteğimle istifa ediyor / ayrılıyorum. 5253 sayılı Dernekler Kanunu ve dernek tüzüğü hükümleri uyarınca üyeliğimin sona erdirilmesini talep ederim.</p>
+            <div class="kabul-imza-satir">
+                <div class="kabul-imza">
+                    <span>Tarih</span>
+                    <div class="kabul-cizgi">@AyrilisModel.TarihYazi(u?.AyrilisTarih)</div>
+                </div>
+                <div class="kabul-imza">
+                    <span>Üye İmza</span>
+                    <div class="kabul-cizgi kabul-imza-bos"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kabul-karar">
+            <h3>Yönetim Kurulu Kararı</h3>
+            <p>Yukarıda kimliği yazılı üyenin istifası / ayrılışı, Yönetim Kurulu’nun aşağıda yazılı kararı ile kabul edilmiştir.</p>
+            <div class="kabul-iki">
+                <div class="kabul-satir">
+                    <span>Karar Tarihi</span>
+                    <div class="kabul-cizgi"></div>
+                </div>
+                <div class="kabul-satir">
+                    <span>Karar No</span>
+                    <div class="kabul-cizgi"></div>
+                </div>
+            </div>
+            <div class="kabul-imza-satir">
+                <div class="kabul-imza">
+                    <span>Başkan</span>
+                    <div class="kabul-cizgi kabul-imza-bos"></div>
+                </div>
+                <div class="kabul-imza">
+                    <span>Genel Sekreter</span>
+                    <div class="kabul-cizgi kabul-imza-bos"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

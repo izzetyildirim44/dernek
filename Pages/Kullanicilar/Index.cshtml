@@ -1,0 +1,69 @@
+@page "{id:int?}"
+@model DernekTakip.Pages.Kullanicilar.IndexModel
+@using DernekTakip.Servisler
+@{
+    ViewData["Title"] = "Kullanıcılar";
+    var tek = Model.KullaniciSayisi <= 1;
+}
+
+<h1>Kullanıcılar</h1>
+<p class="ozet">Sistem tüm dernekleri görür. Yönetici yalnız kendi derneğini. Kullanıcı tahsilat ve kayıt girer.</p>
+@if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+@if (Model.Tamam is not null) { <p class="tamam">@Model.Tamam</p> }
+@if (!Model.Yonetici)
+{
+    <p class="uyari">Kullanıcı eklemek için yönetici yetkisi gerekir.</p>
+}
+else if (Model.Id == 0)
+{
+    <partial name="_KayitForm" />
+}
+
+<partial name="_Sayfalama" model="Model.Sayfalar" />
+<div class="tablo-sar">
+    <table class="tablo">
+        <thead><tr><th>Ad</th><th>Kullanıcı</th><th>Rol</th><th class="kul-islem"></th></tr></thead>
+        <tbody>
+        @foreach (var k in Model.Liste)
+        {
+            <tr>
+                <td>@k.Ad</td>
+                <td>@k.KullaniciAdi</td>
+                <td>@Oturum.RolYazi(k.Rol)</td>
+                <td class="kul-islem">
+                    @if (Model.Yonetici)
+                    {
+                        <a class="btn-duzenle" asp-page="/Kullanicilar/Index" asp-route-id="@k.Id">Düzenle</a>
+                        @if (tek)
+                        {
+                            <button class="btn-sil" type="button" disabled>Sil</button>
+                        }
+                        else
+                        {
+                            <form method="post" action="/Kullanicilar?handler=Sil" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Id" value="@k.Id" />
+                                <button class="btn-sil" type="submit">Sil</button>
+                            </form>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.Yonetici && Model.Id != 0)
+{
+    <div class="uye-pencere-arka" id="kul-pencere-arka">
+        <div class="uye-pencere" role="dialog" aria-modal="true" aria-labelledby="kul-pencere-baslik">
+            <partial name="_KayitForm" />
+        </div>
+    </div>
+    <script>
+    document.getElementById("kul-pencere-arka")?.addEventListener("click", function (e) {
+      if (e.target === this) location.assign("/Kullanicilar");
+    });
+    </script>
+}

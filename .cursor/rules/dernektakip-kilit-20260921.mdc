@@ -1,0 +1,58 @@
+---
+description: Dernek Takip kilidi — 14 Ekim 2026 tüm sayfalar
+alwaysApply: true
+---
+
+# Dernek Takip — KİLİT 14.10.2026
+
+Yol: `E:\Web Tasarım\Dernek Takip`  
+Yerel: http://127.0.0.1:5130 (Kestrel, WinExe — komut penceresi yok). Canlı yok.  
+Açıkça istenmeden hiçbir sayfada kod, stil, menü, refactor veya «iyileştirme» yok.
+
+Sol menü sırası durur: Ana Panel → Dernekler → Üyeler → Aidat → Toplantı → Evrak → Gelir-Gider → Rapor → Kullanıcılar. Çıkış altta. Sistem rolünde üstte Çalışılan Dernek. Veri yalnız seçili derneğe aittir; dernek değişince üyeler, aidat, kasa, toplantı, evrak ve rapor karışmaz.
+
+## Üyeler (`/Uye`)
+
+`Pages/Uye/Index.cshtml` + `.cshtml.cs`, `.uye-baski-*`, `.uye-ad-ara*`.
+
+- Üye Arama ile aynı satır: yazıcı ikonu, sağda **Yeni Üye**
+- Yazdır: eşleşen tüm üyeler; her A4 yaprakta ortalanmış dernek adı (nowrap kaydır, **4 punto büyük**), thead Ad Soyad–Kalan; Düzenle/Sil yok
+- Sağ alt alt bilgi **Sayfa No/Toplam Sayfa** (`1/15`); JS 22 satır/sayfa; bitince listeye dönüş
+- 20’li sayfalama, Aktif/Tümü/Ayrıldı, arama, düzenle overlay — durur
+
+## Aidat (`/Aidat`) + Makbuz
+
+`Pages/Aidat/Index.cshtml` + `.cshtml.cs`, `Makbuz.cshtml`, `MakbuzToplu.cshtml`, `_MakbuzGovde.cshtml`, `.aidat-nav-*`, `.btn-tahsilat`, `.makbuz-kagit`, `.makbuz-ara`, `.makbuz-islem`.
+
+- Sayfada Tahsilat kartı yok; yeşil **Tahsilat** overlay pencere (Vazgeç / dışarı tık)
+- Sayfalama satırı: solda Önceki…Sonraki, **sağda** Toplu Yazdır + yeşil Tahsilat
+- Makbuz butonunun sağı kutu; sütun başlığı tümünü seç
+- Toplu yazdır: A4 dikey, sayfada 2 makbuz, arası 1 cm
+- Tarife / borçlandır / borçlular tablosu — durur
+
+## Gelir-Gider (`/GelirGider`) — 14.10.2026
+
+`Pages/GelirGider/Index.cshtml` + `.cshtml.cs`, `.kasa-giris`, `Kasa.Makbuz`.
+
+- **Yeni Hareket** formu eski genişlik: `max-width: 880px`
+- Alt liste (`.tablo-sar`) ve sayfalama aynı **880px**
+- Tür’ün hemen üstü tek satır: **Üye** solda, sağda filtreli üye alanı. **Aşağı/yukarı ok** işaretler (döner), yazınca ilk eşleşen işaretli; **Tab** işaretli üyeyi seçer ve sonraki alana geçer. Shift+Tab seçmez. Gelir + seçili üye borcundan düşer (ödeme); aidat tahsilat satırı silinmez
+- Satır: **Tür, Tutar, Tarih, Makbuz**; toplam genişlik artmaz, diğerleri kısalır; Açıklama satırı form kadar
+- Makbuz kasaya yazılır, listede Makbuz sütunu durur
+- `OutputType` WinExe; komut penceresi açılmaz
+
+## Diğer sayfalar — 14.10.2026
+
+Hepsi kilitli. Düzen, metin, sütun ve buton durur.
+
+- **Ana Panel** (`/`): yıl seçimi; aktif üye, kalan aidat, tahsilat, kasa, toplantı, evrak kartları
+- **Dernekler** (`/Dernekler`): Kaydet’in sağında açık yeşil **Ekle** (`.btn-ekle`, `#8fd48a`); Ekle boş yeni dernek formu açar
+- **Toplantı** (`/Toplanti`): tarih, başlık, not; resmi defter yok
+- **Evrak** (`/Evrak`): üye aranınca Kabul / İstifa formu; dosya `App_Data/evrak/{dernekId}`
+- **Rapor** (`/Rapor`): toplanacak, toplanan, önceki yıl devri, toplam
+- **Kullanıcılar** (`/Kullanicilar`): Sistem tüm dernekler, yönetici kendi derneği; düzenle overlay
+- **Giriş / Kurulum**: koyu yeşil, hemevrak logosu; kurulum bitince `/Giris`
+
+## Dokunma
+
+`site.css`, `Program.cs`, `Depo.cs`, `gizli-baslat.vbs`. `App_Data/program.db` silinmez. `OdemeEkle` tavanı yok; gerçek 2026 tahsilat silinmez. `Depo.MakbuzListe` / üye yazdır LIMIT’siz liste.

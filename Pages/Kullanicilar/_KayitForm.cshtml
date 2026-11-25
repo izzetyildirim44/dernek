@@ -1,0 +1,87 @@
+@model DernekTakip.Pages.Kullanicilar.IndexModel
+@using DernekTakip.Servisler
+
+<form class="form" method="post" action="/Kullanicilar?handler=Kaydet">
+    @Html.AntiForgeryToken()
+    <h2 id="kul-pencere-baslik">@(Model.Id == 0 ? "Yeni Yetkili" : "Kullanıcı Düzenle")</h2>
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <div class="grid-2">
+        <label>Ad Soyad
+            <input name="Ad" value="@Model.Ad" required />
+        </label>
+        <label>Kullanıcı Adı
+            <input name="KullaniciAdi" value="@Model.KullaniciAdi" required />
+        </label>
+        <label>@(Model.Id == 0 ? "Şifre" : "Yeni Şifre (Boşsa Değişmez)")
+            <span class="sifre-alan">
+                @if (Model.Id == 0)
+                {
+                    <input name="Sifre" type="password" autocomplete="new-password" required />
+                }
+                else
+                {
+                    <input name="Sifre" type="password" autocomplete="new-password" />
+                }
+                <button type="button" class="sifre-goz" aria-label="Şifreyi göster" title="Şifreyi göster">
+                    <svg class="goz-acik" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                    <svg class="goz-kapali" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 4l16 16"/></svg>
+                </button>
+            </span>
+        </label>
+        <label>Rol
+            <select name="Rol">
+                @if (Model.Sistem)
+                {
+                    if (Model.Rol == "Sistem")
+                    {
+                        <option value="Sistem" selected>Sistem</option>
+                    }
+                    else
+                    {
+                        <option value="Sistem">Sistem</option>
+                    }
+                }
+                @if (Model.Rol == "Yonetici")
+                {
+                    <option value="Yonetici" selected>Yönetici</option>
+                }
+                else
+                {
+                    <option value="Yonetici">Yönetici</option>
+                }
+                @if (Model.Rol == "Kullanici")
+                {
+                    <option value="Kullanici" selected>Kullanıcı</option>
+                }
+                else
+                {
+                    <option value="Kullanici">Kullanıcı</option>
+                }
+            </select>
+        </label>
+    </div>
+    <div class="form-aksiyon">
+        <button type="submit">Kaydet</button>
+        @if (Model.Id != 0)
+        {
+            <a class="btn-ince" href="/Kullanicilar">Vazgeç</a>
+        }
+    </div>
+</form>
+<script>
+(function () {
+  document.querySelectorAll(".sifre-goz").forEach(function (btn) {
+    if (btn.dataset.bagli) return;
+    btn.dataset.bagli = "1";
+    btn.addEventListener("click", function () {
+      var inp = this.parentElement.querySelector("input");
+      var gizli = inp.type === "password";
+      inp.type = gizli ? "text" : "password";
+      this.classList.toggle("acik", gizli);
+      var yazi = gizli ? "Şifreyi gizle" : "Şifreyi göster";
+      this.setAttribute("aria-label", yazi);
+      this.setAttribute("title", yazi);
+    });
+  });
+})();
+</script>

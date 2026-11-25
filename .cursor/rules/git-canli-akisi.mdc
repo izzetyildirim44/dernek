@@ -1,0 +1,11 @@
+---
+description: Dernek Takip (.NET 10) zorunlu Git ve Git'ten canlıya aktarım kuralı
+alwaysApply: true
+---
+
+# Zorunlu Git → Canlı Dağıtım Sırası
+
+Yapılan tüm işlemler her zaman şu sırayla ilerler:
+1. **Yerel:** `D:\Web Tasarım\Dernek Takip` içinde geliştir ve `dotnet build` ile doğrula.
+2. **GitHub (`/dernek`):** Değişiklikleri `git add -A`, `git commit` ve `git push origin main` ile `https://github.com/izzetyildirim44/dernek.git` deposuna gönder.
+3. **Git'ten Canlıya (`evrakhane.com.tr/dernek`):** Canlıya aktarım yerelden SCP ile değil, Git üzerinden yapılır: `ssh -n -i "C:\Users\izzet\.ssh\id_ed25519" -o BatchMode=yes root@94.138.209.104 "/usr/local/bin/deploy-dernek"` komutu sunucuda GitHub `origin/main` dalını çekip `.NET 10` Release derlemesini alır, `App_Data` klasörünü koruyarak `/var/www/dernek` dizinini günceller ve `dernek-takip.service` servisini yeniden başlatır.

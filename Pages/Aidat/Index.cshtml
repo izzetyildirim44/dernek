@@ -1,0 +1,275 @@
+@page
+@model DernekTakip.Pages.Aidat.IndexModel
+@using DernekTakip.Servisler
+@{
+    ViewData["Title"] = "Aidat";
+}
+
+<div class="aidat-sayfa">
+<h1>Aidat</h1>
+<p class="ozet">Yıllık tutar seçilen yıldaki aktif üyelere tek kalem borç yazılır. Üyelik girişi yalnız o yılda kaydı olan yeni üyelere yazılır. Tahsilat makbuz numarası üretir ve kasaya gelir yazar.</p>
+@if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+@if (Model.Tamam is not null) { <p class="tamam">@Model.Tamam</p> }
+
+<div class="aidat-ust">
+<form class="form" method="get">
+    <h2>Aidat Tarife</h2>
+    <div class="grid-2">
+        <label>Grup
+            <select name="GrupId" onchange="this.form.submit()">
+                @foreach (var g in Model.Gruplar)
+                {
+                    if (g.Id == Model.GrupId)
+                    {
+                        <option value="@g.Id" selected>@g.Ad</option>
+                    }
+                    else
+                    {
+                        <option value="@g.Id">@g.Ad</option>
+                    }
+                }
+            </select>
+        </label>
+        <label>Yıl
+            <select name="Yil" onchange="this.form.submit()">
+                @foreach (var y in Model.Yillar)
+                {
+                    if (y == Model.Yil)
+                    {
+                        <option value="@y" selected>@y</option>
+                    }
+                    else
+                    {
+                        <option value="@y">@y</option>
+                    }
+                }
+            </select>
+        </label>
+    </div>
+    @if (Model.BorcluGoster)
+    {
+        <input type="hidden" name="borclu" value="1" />
+    }
+</form>
+
+<form class="form" method="post" asp-page-handler="Borclandir">
+    <input type="hidden" name="GrupId" value="@Model.GrupId" />
+    <input type="hidden" name="Yil" value="@Model.Yil" />
+    <div class="grid-2">
+        <label>Yıllık Tutar
+            <span class="para">
+                <input name="Yillik" inputmode="decimal" autocomplete="off" value="@Depo.ParaKutu(Model.Yillik)" />
+                <span>₺</span>
+            </span>
+        </label>
+        <label>Üyelik Girişi
+            <span class="para">
+                <input name="Giris" inputmode="decimal" autocomplete="off" value="@Depo.ParaKutu(Model.Giris)" />
+                <span>₺</span>
+            </span>
+        </label>
+    </div>
+    <p class="ozet">Üyelik girişi, yeni üye olanların o yıl ödediği giriş tutarıdır. Yıllık aidattan ayrı borç yazılır.</p>
+    <button type="submit">Kaydet ve borçlandır</button>
+</form>
+</div>
+
+@if (Model.BorcluGoster)
+{
+    <h2>@Model.Yil Borçlular (@Model.BorcSayfalar.Toplam)</h2>
+    @if (Model.Borclular.Count == 0)
+    {
+        <p class="ozet">Bu yılda borçlu üye yok.</p>
+    }
+    else
+    {
+        <partial name="_Sayfalama" model="Model.BorcSayfalar" />
+        <div class="tablo-sar">
+            <table class="tablo">
+                <thead>
+                    <tr>
+                        <th>Üye</th>
+                        <th>Grup</th>
+                        <th class="sag">Borç</th>
+                        <th class="sag">Ödenen</th>
+                        <th class="sag">Kalan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var u in Model.Borclular)
+                {
+                    <tr>
+                        <td>@u.AdSoyad</td>
+                        <td>@u.GrupAd</td>
+                        <td class="sag">@u.Borc.ToString("N2") ₺</td>
+                        <td class="sag">@u.Odenen.ToString("N2") ₺</td>
+                        <td class="sag @(u.Kalan > 0 ? "kalan-var" : u.Kalan < 0 ? "kalan-fazla" : null)">@Depo.TlMutlak(u.Kalan)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+<h2>@Model.Yil Tahsilatlar</h2>
+<div class="aidat-nav-satir">
+    <partial name="_Sayfalama" model="Model.OdemeSayfalar" />
+    <div class="aidat-nav-sag">
+        <button class="btn" type="submit" form="makbuz-toplu">Toplu Yazdır</button>
+        <a class="btn btn-tahsilat" href="@Model.TahsilatAdres()">Tahsilat</a>
+    </div>
+</div>
+<form id="makbuz-toplu" method="get" action="/MakbuzToplu" target="_blank">
+<div class="tablo-sar">
+    <table class="tablo">
+        <thead>
+            <tr>
+                <th>Makbuz</th>
+                <th>Tarih</th>
+                <th>Üye</th>
+                <th class="sag">Tutar</th>
+                <th class="makbuz-btn"></th>
+                <th class="makbuz-islem"><input type="checkbox" id="makbuz-tumu" title="Tümünü seç" /></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var o in Model.Odemeler)
+        {
+            <tr>
+                <td>@o.MakbuzNo</td>
+                <td>@o.Tarih</td>
+                <td>@o.UyeAd</td>
+                <td class="sag">@o.Tutar.ToString("N2") ₺</td>
+                <td class="makbuz-btn">
+                    <a class="btn-ince" asp-page="/Makbuz" asp-route-id="@o.Id" target="_blank">Makbuz</a>
+                </td>
+                <td class="makbuz-islem"><input class="makbuz-kutu" type="checkbox" name="id" value="@o.Id" /></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+</form>
+</div>
+
+@if (Model.TahsilatPencere)
+{
+    <div class="uye-pencere-arka" id="aidat-tahsilat-arka">
+        <div class="uye-pencere aidat-tahsilat-pencere" role="dialog" aria-modal="true" aria-labelledby="aidat-tahsilat-baslik">
+            <form class="form" method="post" asp-page-handler="Odeme">
+                <input type="hidden" name="GrupId" value="@Model.GrupId" />
+                <input type="hidden" name="Yil" value="@Model.Yil" />
+                <div class="baslik-satir">
+                    <h2 id="aidat-tahsilat-baslik">Tahsilat</h2>
+                    <a class="btn" href="?grupId=@Model.GrupId&amp;yil=@Model.Yil&amp;borclu=1">Borç</a>
+                </div>
+                @if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+                <div class="grid-3">
+                    <label class="uye-ara">Üye
+                        <input type="hidden" name="UyeId" id="uye-id" value="0" />
+                        <div class="uye-ad-ara-kutu">
+                            <input type="search" id="uye-bul" placeholder="Üye bul (ad veya T.C.)" autocomplete="off" />
+                            <div class="uye-ad-ara-liste" id="uye-bul-liste" hidden></div>
+                        </div>
+                    </label>
+                    <label>Tutar
+                        <span class="para">
+                            <input name="Tutar" inputmode="decimal" autocomplete="off" required />
+                            <span>₺</span>
+                        </span>
+                    </label>
+                    <label>Tarih
+                        <input name="Tarih" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </label>
+                </div>
+                <label>Açıklama
+                    <input name="Aciklama" placeholder="Aidat, bağış..." />
+                </label>
+                <div class="form-aksiyon">
+                    <button type="submit">Tahsil et ve makbuz aç</button>
+                    <a class="btn-ince" href="@Model.ListeAdres()">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+    document.getElementById("aidat-tahsilat-arka")?.addEventListener("click", function (e) {
+      if (e.target === this) location.assign(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ListeAdres())));
+    });
+    </script>
+}
+
+<script>
+(function () {
+  var data = @Html.Raw(Model.AraJson);
+  var q = document.getElementById("uye-bul");
+  var id = document.getElementById("uye-id");
+  var liste = document.getElementById("uye-bul-liste");
+  var form = q && q.form;
+  if (!q || !id || !liste || !Array.isArray(data)) return;
+  function kucuk(s) { return String(s || "").toLocaleLowerCase("tr"); }
+  function kapat() { liste.hidden = true; liste.replaceChildren(); }
+  function sec(u) {
+    id.value = String(u.id);
+    q.value = u.ad;
+    kapat();
+  }
+  function yaz(hits) {
+    liste.replaceChildren();
+    if (hits.length === 0) {
+      var bos = document.createElement("div");
+      bos.className = "bos";
+      bos.textContent = "Eşleşen üye yok.";
+      liste.appendChild(bos);
+    } else {
+      hits.slice(0, 30).forEach(function (u) {
+        var a = document.createElement("button");
+        a.type = "button";
+        a.textContent = u.ad;
+        a.addEventListener("mousedown", function (e) { e.preventDefault(); sec(u); });
+        liste.appendChild(a);
+      });
+    }
+    liste.hidden = false;
+  }
+  q.addEventListener("input", function () {
+    id.value = "0";
+    var s = q.value.trim();
+    if (!s) { kapat(); return; }
+    var n = kucuk(s);
+    yaz(data.filter(function (u) {
+      return kucuk(u.ad).indexOf(n) === 0 || kucuk(u.tc).indexOf(n) === 0;
+    }));
+  });
+  q.addEventListener("focus", function () {
+    if (q.value.trim()) q.dispatchEvent(new Event("input"));
+  });
+  q.addEventListener("blur", function () { setTimeout(kapat, 120); });
+  if (form) form.addEventListener("submit", function (e) {
+    if (parseInt(id.value, 10) > 0) return;
+    e.preventDefault();
+    q.focus();
+  });
+})();
+(function () {
+  var tumu = document.getElementById("makbuz-tumu");
+  var form = document.getElementById("makbuz-toplu");
+  if (!tumu || !form) return;
+  function kutular() { return form.querySelectorAll("input.makbuz-kutu"); }
+  tumu.addEventListener("change", function () {
+    kutular().forEach(function (k) { k.checked = tumu.checked; });
+  });
+  form.addEventListener("change", function (e) {
+    if (!e.target.classList.contains("makbuz-kutu")) return;
+    var ks = kutular();
+    tumu.checked = ks.length > 0 && Array.prototype.every.call(ks, function (k) { return k.checked; });
+  });
+  form.addEventListener("submit", function (e) {
+    var varMi = Array.prototype.some.call(kutular(), function (k) { return k.checked; });
+    if (varMi) return;
+    e.preventDefault();
+    alert("Yazdırılacak makbuz seçin.");
+  });
+})();
+</script>

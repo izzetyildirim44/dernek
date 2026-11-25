@@ -1,0 +1,124 @@
+@page
+@model DernekTakip.Pages.Evrak.IndexModel
+@{
+    ViewData["Title"] = "Evrak";
+}
+
+<h1>Evrak</h1>
+<p class="ozet">Formlar, PDF, resim, Word ve Excel. Dosyalar bu kurulumun App_Data klasöründe durur.</p>
+@if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+
+<div class="form evrak-formlar">
+    <h2>Formlar</h2>
+    <p class="ozet">Üye seçilirse bilgiler dolar. Seçilmezse boş form basılır.</p>
+    <div class="evrak-uye-ara">
+        <span>Üye</span>
+        <div class="evrak-uye-kutu">
+            <input type="search" id="evrak-uye-ara" placeholder="Ad soyad" autocomplete="off" />
+            <div class="evrak-uye-liste" id="evrak-uye-liste" hidden></div>
+        </div>
+    </div>
+    <div class="evrak-form-satir">
+        <span>Üye Kabul Formu</span>
+        <a class="btn" id="evrak-kabul" href="/Uye/Kabul">Yazdır</a>
+    </div>
+    <div class="evrak-form-satir">
+        <span>Üye İstifa / Ayrılış Formu</span>
+        <a class="btn" id="evrak-istifa" href="/Uye/Ayrilis">Yazdır</a>
+    </div>
+</div>
+<script>
+(function () {
+  var data = @Html.Raw(Model.AraJson);
+  var q = document.getElementById("evrak-uye-ara");
+  var liste = document.getElementById("evrak-uye-liste");
+  var kabul = document.getElementById("evrak-kabul");
+  var istifa = document.getElementById("evrak-istifa");
+  if (!q || !liste || !kabul || !istifa || !Array.isArray(data)) return;
+  var sec = 0;
+  function kucuk(s) { return String(s || "").toLocaleLowerCase("tr"); }
+  function bagla() {
+    kabul.href = sec ? "/Uye/Kabul/" + sec : "/Uye/Kabul";
+    istifa.href = sec ? "/Uye/Ayrilis/" + sec : "/Uye/Ayrilis";
+  }
+  function kapat() { liste.hidden = true; liste.replaceChildren(); }
+  function yaz(hits) {
+    liste.replaceChildren();
+    if (hits.length === 0) {
+      var bos = document.createElement("div");
+      bos.className = "bos";
+      bos.textContent = "Eşleşen üye yok.";
+      liste.appendChild(bos);
+    } else {
+      hits.forEach(function (u) {
+        var a = document.createElement("button");
+        a.type = "button";
+        a.textContent = u.ad;
+        a.addEventListener("click", function () {
+          sec = u.id;
+          q.value = u.ad;
+          bagla();
+          kapat();
+        });
+        liste.appendChild(a);
+      });
+    }
+    liste.hidden = false;
+  }
+  q.addEventListener("input", function () {
+    var s = q.value.trim();
+    if (!s) {
+      sec = 0;
+      bagla();
+      kapat();
+      return;
+    }
+    var n = kucuk(s);
+    yaz(data.filter(function (u) { return kucuk(u.ad).indexOf(n) === 0; }));
+  });
+  q.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { q.value = ""; sec = 0; bagla(); kapat(); }
+  });
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".evrak-uye-ara")) kapat();
+  });
+})();
+</script>
+
+<form class="form" method="post" asp-page-handler="Yukle" enctype="multipart/form-data">
+    <h2>Evrak Yükle</h2>
+    <label>Başlık
+        <input name="Baslik" required />
+    </label>
+    <label>Dosya
+        <input name="Dosya" type="file" required />
+    </label>
+    <button type="submit">Yükle</button>
+</form>
+
+<partial name="_Sayfalama" model="Model.Sayfalar" />
+<div class="tablo-sar">
+    <table class="tablo">
+        <thead><tr><th>Başlık</th><th>Dosya</th><th>Kayıt</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var e in Model.Liste)
+        {
+            <tr>
+                <td>@e.Baslik</td>
+                <td>@e.DosyaAd</td>
+                <td>@e.Kayit</td>
+                <td>
+                    <a class="btn-ince" asp-page-handler="Indir" asp-route-id="@e.Id">İndir</a>
+                    @if (Model.Yonetici)
+                    {
+                        <form method="post" asp-page-handler="Sil" style="display:inline">
+                            <input type="hidden" name="Id" value="@e.Id" />
+                            <button class="btn-sil" type="submit">Sil</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

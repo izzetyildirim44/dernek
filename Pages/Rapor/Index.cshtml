@@ -1,0 +1,40 @@
+@page
+@model DernekTakip.Pages.Rapor.IndexModel
+@using DernekTakip.Servisler
+@{
+    ViewData["Title"] = "Rapor";
+}
+
+<div class="rapor-sayfa">
+<h1>Rapor</h1>
+<p class="ozet">Yıllık aidat: toplanacak, toplanan, bir önceki yılın toplamı (Devir) ve toplam. Toplam, toplanan aidat ile devirin toplamıdır.</p>
+
+<div class="rapor-yillar">
+@foreach (var y in Model.Yillar)
+{
+    <section class="rapor-yil">
+        <h2>@y.Yil</h2>
+        <table class="tablo">
+            <tbody>
+                <tr>
+                    <th>Toplanacak Aidat</th>
+                    <td class="sag">@Depo.Tl(y.Toplanacak)</td>
+                </tr>
+                <tr>
+                    <th>Toplanan Aidat</th>
+                    <td class="sag">@Depo.Tl(y.Toplanan)</td>
+                </tr>
+                <tr>
+                    <th>@(y.Yil - 1) Devir</th>
+                    <td class="sag">@Depo.Tl(y.Devreden)</td>
+                </tr>
+                <tr>
+                    <th>Toplam</th>
+                    <td class="sag">@Depo.Tl(y.Toplam)</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+}
+</div>
+</div>

@@ -1,0 +1,33 @@
+@model DernekTakip.Servisler.SayfaCubugu
+@if (Model.Goster)
+{
+    <nav class="sayfa-nav" aria-label="Sayfalar">
+        @if (Model.Sayfa > 1)
+        {
+            <a href="@Model.Adres(Model.Sayfa - 1)">Önceki</a>
+        }
+        else
+        {
+            <span class="pasif">Önceki</span>
+        }
+        @for (var i = 1; i <= Model.SayfaSayisi; i++)
+        {
+            if (i == Model.Sayfa)
+            {
+                <span class="secili">@i</span>
+            }
+            else
+            {
+                <a href="@Model.Adres(i)">@i</a>
+            }
+        }
+        @if (Model.Sayfa < Model.SayfaSayisi)
+        {
+            <a href="@Model.Adres(Model.Sayfa + 1)">Sonraki</a>
+        }
+        else
+        {
+            <span class="pasif">Sonraki</span>
+        }
+    </nav>
+}

@@ -1,0 +1,14 @@
+@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Hata";
+}
+
+<h1>Hata</h1>
+<div class="bos">
+    <p>İstek işlenirken bir sorun oluştu.</p>
+    @if (Model.ShowRequestId)
+    {
+        <p>İstek no: <code>@Model.RequestId</code></p>
+    }
+</div>

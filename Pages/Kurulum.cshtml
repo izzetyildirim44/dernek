@@ -1,0 +1,90 @@
+@page
+@model KurulumModel
+@{
+    Layout = "_GirisLayout";
+    ViewData["Title"] = "Kurulum";
+}
+
+<section class="evk-login-grid" aria-label="Dernek Takip İlk Kurulum">
+    <div class="evk-vitrin-kart">
+        <div>
+            <div class="evk-etiket-pil">İLK KURULUM SİHİRBAZI · .NET 10</div>
+            <h2 class="evk-vitrin-baslik">
+                Dernek Takip<br />
+                <span>Sistem Kurulumu</span>
+            </h2>
+            <p class="evk-vitrin-aciklama">
+                İlk dernek kaydını ve sistem yöneticisi hesabını oluşturun. Bu kurulum Türkiye genelinde birden fazla dernek için izole veri yapısıyla kullanılabilir.
+            </p>
+        </div>
+
+        <div class="evk-ozellik-listesi">
+            <div class="evk-ozellik-kutu">
+                <span class="evk-ozellik-ikon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                </span>
+                <div class="evk-ozellik-metin">
+                    <strong>İzole Çoklu Dernek Mimarisi</strong>
+                    <span>Her derneğin üye, aidat, kasa, toplantı ve evrak verileri birbirine karışmadan saklanır.</span>
+                </div>
+            </div>
+            <div class="evk-ozellik-kutu">
+                <span class="evk-ozellik-ikon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </span>
+                <div class="evk-ozellik-metin">
+                    <strong>Hazır Üye Grupları ve Kasa</strong>
+                    <span>Üyeler, Yöneticiler, Çalışanlar, Bağış ve Diğer grupları otomatik tanımlanır.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="evk-giris-kart">
+        <div class="evk-giris-ust">
+            <div class="evk-giris-rozet">YÖNETİCİ TANIMLAMA</div>
+            <h1 class="evk-giris-baslik">İlk Kurulum</h1>
+            <p class="evk-giris-alt">Dernek adını ve tam yetkili sistem yöneticisi hesabını belirleyin.</p>
+        </div>
+
+        @if (Model.Uyari is not null)
+        {
+            <div class="uyari evk-alert" role="alert">@Model.Uyari</div>
+        }
+
+        <form class="giris evk-form" method="post">
+            <div class="evk-alan">
+                <label class="evk-label">Dernek Adı</label>
+                <input class="evk-input evk-input-duz" name="DernekAd" value="@Model.DernekAd" required placeholder="Örn: Yardımlaşma ve Dayanışma Derneği" />
+            </div>
+            <div class="evk-alan">
+                <label class="evk-label">Yönetici Adı Soyadı</label>
+                <input class="evk-input evk-input-duz" name="YoneticiAd" value="@Model.YoneticiAd" required placeholder="Ad Soyad" />
+            </div>
+            <div class="evk-alan">
+                <label class="evk-label">Kullanıcı Adı</label>
+                <input class="evk-input evk-input-duz" name="KullaniciAdi" value="@Model.KullaniciAdi" required autocomplete="username" placeholder="En az 3 karakter" />
+            </div>
+            <div class="evk-alan">
+                <label class="evk-label">Şifre (En Az 6 Karakter)</label>
+                <div class="evk-input-grup sifre-alan">
+                    <input class="evk-input evk-input-duz evk-input-pass" name="Sifre" type="password" required autocomplete="new-password" placeholder="••••••••" />
+                    <button type="button" class="sifre-goz" aria-label="Şifreyi göster" title="Şifreyi göster">
+                        <svg class="goz-acik" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                        <svg class="goz-kapali" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 4l16 16"/></svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="evk-submit-btn">
+                <span>Kurulumu Bitir</span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+            </button>
+        </form>
+    </div>
+</section>

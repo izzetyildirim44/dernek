@@ -1,0 +1,126 @@
+@page
+@model GirisModel
+@{
+    Layout = "_GirisLayout";
+    ViewData["Title"] = "Giriş";
+}
+
+<section class="evk-login-grid" aria-label="Dernek Takip Giriş Paneli">
+    <div class="evk-vitrin-kart">
+        <div>
+            <div class="evk-etiket-pil">STK VE MUHASEBE · HAZIR</div>
+            <h2 class="evk-vitrin-baslik">
+                Dernek Takip<br />
+                <span>Yönetim Merkezi</span>
+            </h2>
+            <p class="evk-vitrin-aciklama">
+                Üye sicil kayıtları, yıllık aidat ve tahsilat makbuzları, yönetim toplantı notları, resmi evrak arşivi ile gelir-gider kasa takibini tek merkezde buluşturan .NET 10 uygulaması.
+            </p>
+        </div>
+
+        <div class="evk-ozellik-listesi">
+            <div class="evk-ozellik-kutu">
+                <span class="evk-ozellik-ikon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </span>
+                <div class="evk-ozellik-metin">
+                    <strong>Üye Sicil ve Resmi Formlar</strong>
+                    <span>Aktif ve ayrılan üye kayıtları, A4 üye listesi basımı, Üye Kabul ve İstifa / Ayrılış belgeleri.</span>
+                </div>
+            </div>
+
+            <div class="evk-ozellik-kutu">
+                <span class="evk-ozellik-ikon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                </span>
+                <div class="evk-ozellik-metin">
+                    <strong>Aidat, Makbuz ve Kasa Otomasyonu</strong>
+                    <span>Gruplara göre yıllık borçlandırma, A4 çiftli toplu tahsilat makbuzu ve entegre gelir-gider defteri.</span>
+                </div>
+            </div>
+
+            <div class="evk-ozellik-kutu">
+                <span class="evk-ozellik-ikon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                </span>
+                <div class="evk-ozellik-metin">
+                    <strong>Çoklu Dernek ve Yıllık Devir Raporu</strong>
+                    <span>Her derneğin kaydını ayrı tutan güvenli yapı, toplantı notları, evrak arşivi ve yıllık devir tabloları.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="evk-giris-kart">
+        <div class="evk-giris-ust">
+            <div class="evk-giris-rozet">YETKİLİ OTURUM KAPISI</div>
+            <h1 class="evk-giris-baslik">Kullanıcı Girişi</h1>
+            <p class="evk-giris-alt">Yetkili hesabınla gir. Veriler bu kurulumda, seçili derneğe aittir.</p>
+        </div>
+
+        @if (Model.Uyari is not null)
+        {
+            <div class="uyari evk-alert" role="alert">@Model.Uyari</div>
+        }
+
+        <form class="giris evk-form" method="post">
+            <div class="evk-alan">
+                <label for="giris-kullanici" class="evk-label">Kullanıcı Adı</label>
+                <div class="evk-input-grup">
+                    <span class="evk-input-ikon" aria-hidden="true">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                    </span>
+                    <input id="giris-kullanici" class="evk-input" name="KullaniciAdi" value="@Model.KullaniciAdi" required autocomplete="username" placeholder="kullaniciadi" />
+                </div>
+            </div>
+
+            <div class="evk-alan">
+                <label for="giris-sifre" class="evk-label">Şifre</label>
+                <div class="evk-input-grup sifre-alan">
+                    <span class="evk-input-ikon" aria-hidden="true">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                    </span>
+                    <input id="giris-sifre" class="evk-input evk-input-pass" name="Sifre" type="password" required autocomplete="current-password" placeholder="••••••••" />
+                    <button type="button" class="sifre-goz" aria-label="Şifreyi göster" title="Şifreyi göster">
+                        <svg class="goz-acik" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                        <svg class="goz-kapali" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 4l16 16"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="evk-submit-btn">
+                <span>Giriş Yap</span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </button>
+        </form>
+
+        <div class="evk-giris-dipnot">
+            <span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                SSL / TLS Güvenli Bağlantı
+            </span>
+            <span>Evrakhane .Net · .NET 10</span>
+        </div>
+    </div>
+</section>

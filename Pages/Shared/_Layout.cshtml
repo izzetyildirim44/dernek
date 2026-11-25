@@ -1,0 +1,98 @@
+@using DernekTakip.Servisler
+@{
+    var yol = ViewContext.HttpContext.Request.Path.Value ?? "/";
+    bool Aktif(string p) => p == "/"
+        ? yol == "/"
+        : yol.StartsWith(p, StringComparison.OrdinalIgnoreCase);
+    var dernekler = ViewData["DernekListe"] as List<DernekKayit> ?? [];
+    var dernekAd = ViewData["DernekAd"] as string ?? "Dernek Takip";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#040711" />
+    <title>@(ViewData["Title"] is string t && t.Length > 0 ? t + " — " : "")Dernek Takip · Evrakhane .Net (.NET 10)</title>
+    <link rel="icon" href="~/img/evrakhane-logo.png" type="image/png" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="panel-govde">
+    <div class="sahne" aria-hidden="true">
+        <div class="aurora aurora-a"></div>
+        <div class="aurora aurora-b"></div>
+        <div class="izgara"></div>
+    </div>
+
+    <aside class="yan">
+        <div class="marka">
+            <div class="marka-ust">
+                <span class="mini-logo-kutu">
+                    <img class="marka-logo" src="~/img/evrakhane-logo.png" asp-append-version="true" alt="Evrakhane .Net" />
+                </span>
+                <div class="marka-baslik-kutu">
+                    <strong>DERNEK TAKİP <span class="vurgu-net">.NET</span></strong>
+                    <small>Evrakhane .Net Stüdyosu</small>
+                </div>
+            </div>
+            <span class="marka-dernek">@dernekAd</span>
+        </div>
+        <nav>
+            <a class="@(Aktif("/") ? "secili" : null)" asp-page="/Index">Ana Panel</a>
+            <a class="@(Aktif("/Dernekler") ? "secili" : null)" asp-page="/Dernekler/Index">Dernekler</a>
+            <a class="@(Aktif("/Uye") ? "secili" : null)" asp-page="/Uye/Index">Üyeler</a>
+            <a class="@(Aktif("/Aidat") ? "secili" : null)" asp-page="/Aidat/Index">Aidat</a>
+            <a class="@(Aktif("/Toplanti") ? "secili" : null)" asp-page="/Toplanti/Index">Toplantı</a>
+            <a class="@(Aktif("/Evrak") ? "secili" : null)" asp-page="/Evrak/Index">Evrak</a>
+            <a class="@(Aktif("/GelirGider") ? "secili" : null)" asp-page="/GelirGider/Index">Gelir-Gider</a>
+            <a class="@(Aktif("/Rapor") ? "secili" : null)" asp-page="/Rapor/Index">Rapor</a>
+            <a class="@(Aktif("/Kullanicilar") ? "secili" : null)" asp-page="/Kullanicilar/Index">Kullanıcılar</a>
+        </nav>
+        <div class="yan-alt">
+            <span class="yan-kullanici">@User.Ad() · @Oturum.RolYazi(User.Rol())</span>
+            <a class="yan-ana-giris" href="https://www.evrakhane.com.tr/" onclick="window.location.href=window.location.origin+'/';return false;">← Ana Giriş Merkezi</a>
+            <form method="post" asp-page="/Giris" asp-page-handler="Cikis">
+                <button type="submit" class="cikis">Çıkış Yap</button>
+            </form>
+        </div>
+    </aside>
+    <main class="icerik">
+        <div class="evk-icerik-bar">
+            <div class="evk-icerik-bar-sol">
+                @if (User.SistemMi() && dernekler.Count > 0)
+                {
+                    <form class="dernek-sec" method="post" asp-page="/Index" asp-page-handler="DernekSec">
+                        <label>
+                            <span>Çalışılan Dernek</span>
+                            <select name="DernekId" onchange="this.form.submit()">
+                                @foreach (var d in dernekler)
+                                {
+                                    if (d.Id == User.DernekId())
+                                    {
+                                        <option value="@d.Id" selected>@d.Ad</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@d.Id">@d.Ad</option>
+                                    }
+                                }
+                            </select>
+                        </label>
+                    </form>
+                }
+                else
+                {
+                    <span class="evk-aktif-dernek-rozet">@dernekAd</span>
+                }
+            </div>
+            <div class="evk-icerik-bar-sag">
+                <span class="motor-rozet">
+                    <span class="canli-nokta" aria-hidden="true"></span>
+                    <span>.NET 10 · Aktif</span>
+                </span>
+            </div>
+        </div>
+        @RenderBody()
+    </main>
+</body>
+</html>

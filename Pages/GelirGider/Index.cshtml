@@ -1,0 +1,183 @@
+@page
+@model DernekTakip.Pages.GelirGider.IndexModel
+@using DernekTakip.Servisler
+@{
+    ViewData["Title"] = "Gelir-Gider";
+}
+
+<h1>Gelir-Gider</h1>
+<p class="ozet">Kasa hareketleri. Aidat tahsilatı otomatik gelir yazar; o satırlar buradan silinmez.</p>
+@if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+@if (Model.Tamam is not null) { <p class="tamam">@Model.Tamam</p> }
+
+<form class="yil-sec" method="get">
+    <label>Yıl
+        <select name="yil" onchange="this.form.submit()">
+            @foreach (var y in Model.Yillar)
+            {
+                if (y == Model.Yil)
+                {
+                    <option value="@y" selected>@y</option>
+                }
+                else
+                {
+                    <option value="@y">@y</option>
+                }
+            }
+        </select>
+    </label>
+</form>
+
+<div class="kartlar sayilar">
+    <div class="kart"><strong>@Depo.Tl(Model.Gelir)</strong><span>Toplam Gelir</span></div>
+    <div class="kart"><strong>@Depo.Tl(Model.Gider)</strong><span>Toplam Gider</span></div>
+    <div class="kart"><strong>@Depo.Tl(Model.Gelir - Model.Gider)</strong><span>Bakiye</span></div>
+</div>
+
+<form class="form" method="post" asp-page-handler="Ekle">
+    <input type="hidden" name="Yil" value="@Model.Yil" />
+    <h2>Yeni Hareket</h2>
+    <div class="kasa-uye">
+        <span>Üye</span>
+        <input type="hidden" name="UyeId" id="kasa-uye-id" value="0" />
+        <div class="uye-ad-ara-kutu">
+            <input type="search" id="kasa-uye-ara" placeholder="Üye filtrele" autocomplete="off" />
+            <div class="uye-ad-ara-liste" id="kasa-uye-liste" hidden></div>
+        </div>
+    </div>
+    <div class="kasa-giris">
+        <label>Tür
+            <select name="Tur">
+                <option>Gelir</option>
+                <option>Gider</option>
+            </select>
+        </label>
+        <label>Tutar (₺)
+            <input name="Tutar" inputmode="decimal" autocomplete="off" required />
+        </label>
+        <label>Tarih
+            <input name="Tarih" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        </label>
+        <label>Makbuz
+            <input name="Makbuz" autocomplete="off" />
+        </label>
+    </div>
+    <label>Açıklama
+        <input name="Aciklama" required />
+    </label>
+    <button type="submit">Kaydet</button>
+</form>
+<script>
+(function () {
+  var data = @Html.Raw(Model.AraJson);
+  var q = document.getElementById("kasa-uye-ara");
+  var id = document.getElementById("kasa-uye-id");
+  var liste = document.getElementById("kasa-uye-liste");
+  var form = q && q.form;
+  if (!q || !id || !liste || !Array.isArray(data)) return;
+  function kucuk(s) { return String(s || "").toLocaleLowerCase("tr"); }
+  var hits = [];
+  var aktif = -1;
+  function kapat() { liste.hidden = true; liste.replaceChildren(); aktif = -1; hits = []; }
+  function sec(u) {
+    id.value = String(u.id);
+    q.value = u.ad;
+    kapat();
+  }
+  function isaret(i) {
+    var btn = liste.querySelectorAll("button");
+    if (!btn.length) { aktif = -1; return; }
+    if (i < 0) i = btn.length - 1;
+    if (i >= btn.length) i = 0;
+    aktif = i;
+    btn.forEach(function (b, n) { b.classList.toggle("secili", n === aktif); });
+    btn[aktif].scrollIntoView({ block: "nearest" });
+  }
+  function yaz(gelen, imlec) {
+    hits = gelen.slice(0, 30);
+    liste.replaceChildren();
+    if (hits.length === 0) {
+      var bos = document.createElement("div");
+      bos.className = "bos";
+      bos.textContent = "Eşleşen üye yok.";
+      liste.appendChild(bos);
+      aktif = -1;
+    } else {
+      hits.forEach(function (u, n) {
+        var a = document.createElement("button");
+        a.type = "button";
+        a.textContent = u.kalan ? u.ad + " · " + u.kalan : u.ad;
+        a.addEventListener("mousedown", function (e) { e.preventDefault(); sec(u); });
+        a.addEventListener("mouseenter", function () { isaret(n); });
+        liste.appendChild(a);
+      });
+      aktif = imlec ? 0 : -1;
+      if (aktif === 0) liste.querySelector("button").classList.add("secili");
+    }
+    liste.hidden = false;
+  }
+  function filtre() {
+    var s = q.value.trim();
+    var n = kucuk(s);
+    return data.filter(function (u) {
+      if (!n) return true;
+      return kucuk(u.ad).indexOf(n) >= 0 || kucuk(u.tc).indexOf(n) >= 0;
+    });
+  }
+  q.addEventListener("input", function () {
+    id.value = "0";
+    yaz(filtre(), true);
+  });
+  q.addEventListener("focus", function () { yaz(filtre(), q.value.trim().length > 0); });
+  q.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (liste.hidden) yaz(filtre(), false);
+      if (!liste.querySelector("button")) return;
+      if (aktif < 0) isaret(e.key === "ArrowUp" ? -1 : 0);
+      else isaret(e.key === "ArrowDown" ? aktif + 1 : aktif - 1);
+      return;
+    }
+    if (e.key === "Tab" && !e.shiftKey && !liste.hidden && aktif >= 0 && hits[aktif]) {
+      sec(hits[aktif]);
+      return;
+    }
+    if (e.key === "Escape") kapat();
+  });
+  q.addEventListener("blur", function () { setTimeout(kapat, 120); });
+  if (form) form.addEventListener("submit", function (e) {
+    if (!q.value.trim() || parseInt(id.value, 10) > 0) return;
+    e.preventDefault();
+    q.focus();
+  });
+})();
+</script>
+
+<partial name="_Sayfalama" model="Model.Sayfalar" />
+<div class="tablo-sar">
+    <table class="tablo">
+        <thead><tr><th>Tarih</th><th>Tür</th><th>Makbuz</th><th>Açıklama</th><th class="sag">Tutar</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var k in Model.Liste)
+        {
+            <tr>
+                <td>@k.Tarih</td>
+                <td>@k.Tur</td>
+                <td>@k.Makbuz</td>
+                <td>@k.Aciklama</td>
+                <td class="sag">@Depo.Tl(k.Tutar)</td>
+                <td>
+                    @if (Model.Yonetici)
+                    {
+                        <form method="post" asp-page-handler="Sil">
+                            <input type="hidden" name="Id" value="@k.Id" />
+                            <input type="hidden" name="Yil" value="@Model.Yil" />
+                            <button class="btn-sil" type="submit">Sil</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

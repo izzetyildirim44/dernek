@@ -1,0 +1,20 @@
+@model DernekTakip.Servisler.MakbuzKayit
+@using DernekTakip.Servisler
+@{
+    var m = Model;
+}
+<div class="makbuz">
+    <h1>Tahsilat Makbuzu</h1>
+    <p>@m.DernekAd</p>
+    @if (!string.IsNullOrWhiteSpace(m.DernekAdres)) { <p>@m.DernekAdres</p> }
+    @if (!string.IsNullOrWhiteSpace(m.DernekTelefon)) { <p>@m.DernekTelefon</p> }
+    <div class="cizgi"></div>
+    <div class="makbuz-satir"><span>Makbuz No</span><strong>@m.Odeme.MakbuzNo</strong></div>
+    <div class="makbuz-satir"><span>Tarih</span><span>@m.Odeme.Tarih</span></div>
+    <div class="makbuz-satir"><span>Üye</span><span>@m.Odeme.UyeAd</span></div>
+    @if (!string.IsNullOrWhiteSpace(m.UyeTc)) { <div class="makbuz-satir"><span>T.C.</span><span>@m.UyeTc</span></div> }
+    <div class="makbuz-satir"><span>Açıklama</span><span>@(string.IsNullOrWhiteSpace(m.Odeme.Aciklama) ? "Aidat tahsilatı" : m.Odeme.Aciklama)</span></div>
+    <div class="cizgi"></div>
+    <div class="makbuz-satir"><span>Tutar</span><strong>@Depo.Tl(m.Odeme.Tutar)</strong></div>
+    <p class="ozet">Bu belge Dernek Takip yazılımı ile düzenlenmiştir.</p>
+</div>

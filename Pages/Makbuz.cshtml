@@ -1,0 +1,23 @@
+@page "{id:int}"
+@model MakbuzModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Makbuz";
+    var m = Model.Makbuz!;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>@m.Odeme.MakbuzNo — Dernek Takip</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="makbuz-tek">
+        <p class="no-print"><button class="btn" type="button" onclick="window.print()">Yazdır</button>
+            <a class="btn-ince" href="/Aidat">Aidata Dön</a></p>
+        <partial name="_MakbuzGovde" model="m" />
+    </div>
+</body>
+</html>

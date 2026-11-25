@@ -1,0 +1,37 @@
+@page
+@model IndexModel
+@using DernekTakip.Servisler
+@{
+    ViewData["Title"] = "Ana Panel";
+}
+
+<h1>Ana Panel</h1>
+<p class="ozet">Seçili derneğin @Model.Yil yılı özeti. Türkiye genelinde her dernek kendi kaydıyla çalışır.</p>
+@if (Model.Tamam is not null) { <p class="tamam">@Model.Tamam</p> }
+
+<form class="yil-sec" method="get">
+    <label>Yıl
+        <select name="yil" onchange="this.form.submit()">
+            @foreach (var y in Model.Yillar)
+            {
+                if (y == Model.Yil)
+                {
+                    <option value="@y" selected>@y</option>
+                }
+                else
+                {
+                    <option value="@y">@y</option>
+                }
+            }
+        </select>
+    </label>
+</form>
+
+<div class="kartlar sayilar">
+    <div class="kart"><strong>@Model.Ozet.UyeSayisi</strong><span>Aktif Üye</span></div>
+    <div class="kart"><strong>@Depo.TlMutlak(Model.Ozet.Kalan)</strong><span>Kalan Aidat Borcu</span></div>
+    <div class="kart"><strong>@Depo.Tl(Model.Ozet.ToplamOdenen)</strong><span>Tahsil Edilen</span></div>
+    <div class="kart"><strong>@Depo.Tl(Model.Ozet.KasaBakiye)</strong><span>Kasa Bakiyesi</span></div>
+    <div class="kart"><strong>@Model.Ozet.ToplantiSayisi</strong><span>Toplantı</span></div>
+    <div class="kart"><strong>@Model.Ozet.EvrakSayisi</strong><span>Evrak</span></div>
+</div>

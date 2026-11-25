@@ -1,0 +1,67 @@
+@page
+@model DernekTakip.Pages.Dernekler.IndexModel
+@using DernekTakip.Servisler
+@{
+    ViewData["Title"] = "Dernekler";
+}
+
+<h1>Dernekler</h1>
+<p class="ozet">Satış kopyasında birden fazla dernek tutulabilir. Çalışılan dernek sol üstten seçilir.</p>
+@if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+@if (Model.Tamam is not null) { <p class="tamam">@Model.Tamam</p> }
+
+<form class="form" method="post" asp-page-handler="Kaydet">
+    <h2>@(Model.Id == 0 ? "Yeni Dernek" : "Dernek Bilgisi")</h2>
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <label>Ad
+        <input name="Ad" value="@Model.Ad" required />
+    </label>
+    <div class="grid-2">
+        <label>Telefon
+            <input name="Telefon" value="@Model.Telefon" />
+        </label>
+        <label>Adres
+            <input name="Adres" value="@Model.Adres" />
+        </label>
+    </div>
+    <div class="form-aksiyon">
+        <button type="submit">Kaydet</button>
+        <a class="btn btn-ekle" href="/Dernekler?yeni=1">Ekle</a>
+    </div>
+</form>
+
+@if (Model.Sistem && Model.Sayfalar.Toplam > 0)
+{
+    <partial name="_Sayfalama" model="Model.Sayfalar" />
+    <div class="tablo-sar">
+        <table class="tablo">
+            <thead><tr><th>Dernek</th><th>Telefon</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var d in Model.Liste)
+            {
+                var son = Model.Sayfalar.Toplam <= 1;
+                var calisan = d.Id == Model.DernekId;
+                <tr>
+                    <td>@d.Ad</td>
+                    <td>@d.Telefon</td>
+                    <td class="kul-islem">
+                        <a class="btn-duzenle" asp-page="/Dernekler/Index" asp-route-id="@d.Id">Düzenle</a>
+                        @if (son || calisan)
+                        {
+                            <button class="btn-sil" type="button" disabled>Sil</button>
+                        }
+                        else
+                        {
+                            <form method="post" action="/Dernekler?handler=Sil" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Id" value="@d.Id" />
+                                <button class="btn-sil" type="submit">Sil</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

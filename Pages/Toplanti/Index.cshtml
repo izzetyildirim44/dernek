@@ -1,0 +1,54 @@
+@page
+@model DernekTakip.Pages.Toplanti.IndexModel
+@{
+    ViewData["Title"] = "Toplantı";
+}
+
+<h1>Toplantı</h1>
+<p class="ozet">Yönetim ve genel kurul notları. Resmi defter formatı sonraki sürümdedir.</p>
+@if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+@if (Model.Tamam is not null) { <p class="tamam">@Model.Tamam</p> }
+
+<form class="form" method="post" asp-page-handler="Kaydet">
+    <h2>@(Model.Id == 0 ? "Yeni Toplantı" : "Toplantı Düzenle")</h2>
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <div class="grid-2">
+        <label>Tarih
+            <input name="Tarih" type="date" value="@(Model.Tarih.Length > 0 ? Model.Tarih : DateTime.Now.ToString("yyyy-MM-dd"))" />
+        </label>
+        <label>Başlık
+            <input name="Baslik" value="@Model.Baslik" required />
+        </label>
+    </div>
+    <label>Notlar
+        <textarea name="Notlar">@Model.Notlar</textarea>
+    </label>
+    <button type="submit">Kaydet</button>
+</form>
+
+<partial name="_Sayfalama" model="Model.Sayfalar" />
+<div class="tablo-sar">
+    <table class="tablo">
+        <thead><tr><th>Tarih</th><th>Başlık</th><th>Not</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var t in Model.Liste)
+        {
+            <tr>
+                <td>@t.Tarih</td>
+                <td>@t.Baslik</td>
+                <td>@(t.Notlar.Length > 120 ? t.Notlar[..120] + "…" : t.Notlar)</td>
+                <td>
+                    <a class="btn-ince" asp-page="/Toplanti/Index" asp-route-id="@t.Id">Aç</a>
+                    @if (Model.Yonetici)
+                    {
+                        <form method="post" asp-page-handler="Sil" style="display:inline">
+                            <input type="hidden" name="Id" value="@t.Id" />
+                            <button class="btn-sil" type="submit">Sil</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
