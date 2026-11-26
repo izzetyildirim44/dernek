@@ -2508,3 +2508,152 @@ body:has(.uye-sayfa.yazdir) .icerik {
     grid-template-columns: 1.2fr 1.35fr 0.9fr !important;
   }
 }
+
+/* Dernek Logosu (Sol Menü, Profil, Makbuz ve Formlar) */
+.marka-dernek-kapsam {
+  margin-top: 11px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: rgba(243, 210, 138, 0.08);
+  border: 1px solid rgba(243, 210, 138, 0.22);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.marka-dernek-kapsam .marka-dernek {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  min-width: 0;
+}
+
+.marka-dernek-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  object-fit: contain;
+  background: #fff;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.profil-logo-blok {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 15px 16px;
+  border-radius: 14px;
+  background: rgba(4, 9, 24, 0.50);
+  border: 1px solid rgba(243, 210, 138, 0.20);
+}
+
+.profil-logo-cerceve {
+  width: 104px;
+  height: 104px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 2px solid rgba(243, 210, 138, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 6px;
+}
+
+.profil-logo-cerceve img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.profil-logo-bos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.profil-logo-icerik {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.profil-logo-icerik strong {
+  font-family: var(--font-baslik);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--altin);
+}
+
+.profil-logo-icerik p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--soluk);
+  line-height: 1.48;
+}
+
+.profil-logo-butonlar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.profil-logo-sec-btn {
+  display: inline-flex !important;
+  margin: 0 !important;
+  cursor: pointer;
+}
+
+.profil-logo-durum {
+  font-size: 12.5px;
+  color: var(--altin);
+  font-weight: 600;
+}
+
+.makbuz-ust {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.makbuz-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.kabul-logo {
+  display: block;
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  margin: 0 auto 6px;
+}
+
+@media (max-width: 640px) {
+  .profil-logo-blok {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media print {
+  .profil-logo-blok {
+    background: #fff !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  .profil-logo-icerik strong,
+  .profil-logo-icerik p {
+    color: #000 !important;
+  }
+}

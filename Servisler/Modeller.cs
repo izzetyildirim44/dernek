@@ -109,6 +109,7 @@ public sealed class MakbuzKayit
     public string DernekAd { get; set; } = "";
     public string DernekAdres { get; set; } = "";
     public string DernekTelefon { get; set; } = "";
+    public string DernekLogo { get; set; } = "";
     public string UyeTc { get; set; } = "";
 }
 

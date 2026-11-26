@@ -2,12 +2,21 @@
 @using DernekTakip.Servisler
 @{
     var m = Model;
+    var kok = ViewContext.HttpContext.Request.PathBase.Value ?? "";
 }
 <div class="makbuz">
-    <h1>Tahsilat Makbuzu</h1>
-    <p>@m.DernekAd</p>
-    @if (!string.IsNullOrWhiteSpace(m.DernekAdres)) { <p>@m.DernekAdres</p> }
-    @if (!string.IsNullOrWhiteSpace(m.DernekTelefon)) { <p>@m.DernekTelefon</p> }
+    <div class="makbuz-ust">
+        @if (!string.IsNullOrWhiteSpace(m.DernekLogo))
+        {
+            <img class="makbuz-logo" src="@(kok + m.DernekLogo)" alt="@m.DernekAd" />
+        }
+        <div>
+            <h1>Tahsilat Makbuzu</h1>
+            <p>@m.DernekAd</p>
+            @if (!string.IsNullOrWhiteSpace(m.DernekAdres)) { <p>@m.DernekAdres</p> }
+            @if (!string.IsNullOrWhiteSpace(m.DernekTelefon)) { <p>@m.DernekTelefon</p> }
+        </div>
+    </div>
     <div class="cizgi"></div>
     <div class="makbuz-satir"><span>Makbuz No</span><strong>@m.Odeme.MakbuzNo</strong></div>
     <div class="makbuz-satir"><span>Tarih</span><span>@m.Odeme.Tarih</span></div>

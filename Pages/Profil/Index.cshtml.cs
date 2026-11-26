@@ -3,21 +3,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DernekTakip.Pages.Profil;
 
+[RequestSizeLimit(10_000_000)]
 public class IndexModel : DernekSayfa
 {
     public IndexModel(Depo depo) : base(depo) { }
 
     public DernekProfil P { get; private set; } = new();
+    public string LogoAdres { get; private set; } = "";
+
+    void LogoYenile()
+    {
+        var yol = Depo.DernekLogoGoreliYol(DernekId);
+        LogoAdres = yol.Length > 0 ? Yol(yol) : "";
+        ViewData["DernekLogo"] = LogoAdres;
+    }
 
     public IActionResult OnGet()
     {
         var p = Depo.DernekProfilGetir(DernekId);
         if (p is null) return RedirectToPage("/Dernekler/Index");
         P = p;
+        LogoYenile();
         return Page();
     }
 
     public IActionResult OnPost(
+        IFormFile? LogoDosya,
+        [FromForm] int LogoKaldir,
         [FromForm] string? Ad,
         [FromForm] string? KisaAd,
         [FromForm] string? KutukNo,
@@ -109,17 +121,31 @@ public class IndexModel : DernekSayfa
             if (!Yonetici)
                 throw new InvalidOperationException("Profil bilgilerini güncellemek için yönetici yetkisi gerekir.");
 
+            if (LogoDosya is not null && LogoDosya.Length > 0)
+            {
+                if (LogoDosya.Length > 5_000_000)
+                    throw new InvalidOperationException("Logo dosyası en fazla 5 MB olabilir.");
+                using var akis = LogoDosya.OpenReadStream();
+                Depo.DernekLogoKaydet(DernekId, LogoDosya.FileName, akis);
+            }
+            else if (LogoKaldir == 1)
+            {
+                Depo.DernekLogoSil(DernekId);
+            }
+
             Depo.DernekProfilKaydet(DernekId, p);
             P = Depo.DernekProfilGetir(DernekId) ?? p;
             ViewData["DernekAd"] = P.Ad;
+            LogoYenile();
             if (Sistem)
                 ViewData["DernekListe"] = Depo.DernekListe();
-            Tamam = "Dernek profili, yönetim ve denetim kurulu bilgileri kaydedildi.";
+            Tamam = "Dernek profili, logo ve kurul bilgileri kaydedildi.";
         }
         catch (Exception ex)
         {
             Uyari = ex.Message;
             P = p;
+            LogoYenile();
         }
         return Page();
     }

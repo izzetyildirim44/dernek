@@ -36,6 +36,8 @@ public abstract class DernekSayfa : PageModel
                 return;
             }
             ViewData["DernekAd"] = d.Ad;
+            var logoYol = Depo.DernekLogoGoreliYol(DernekId);
+            ViewData["DernekLogo"] = logoYol.Length > 0 ? Yol(logoYol) : "";
             if (Sistem)
                 ViewData["DernekListe"] = Depo.DernekListe();
         }

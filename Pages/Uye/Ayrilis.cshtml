@@ -23,6 +23,10 @@
     </p>
     <div class="kabul-kagit">
         <header class="kabul-baslik">
+            @if (ViewData["DernekLogo"] is string dl && dl.Length > 0)
+            {
+                <img class="kabul-logo" src="@dl" alt="@d.Ad" />
+            }
             <h1>@d.Ad</h1>
             @if (!string.IsNullOrWhiteSpace(d.Adres)) { <p>@d.Adres</p> }
             @if (!string.IsNullOrWhiteSpace(d.Telefon)) { <p>Tel: @d.Telefon</p> }

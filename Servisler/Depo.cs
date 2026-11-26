@@ -19,6 +19,7 @@ public sealed class Depo
     readonly string _cs;
     readonly string _kok;
     readonly string _evrakKok;
+    readonly string _logoKok;
 
     public Depo(IWebHostEnvironment env)
     {
@@ -26,6 +27,8 @@ public sealed class Depo
         Directory.CreateDirectory(_kok);
         _evrakKok = Path.Combine(_kok, "evrak");
         Directory.CreateDirectory(_evrakKok);
+        _logoKok = Path.Combine(_kok, "logolar");
+        Directory.CreateDirectory(_logoKok);
         _cs = new SqliteConnectionStringBuilder
         {
             DataSource = Path.Combine(_kok, "program.db"),
@@ -500,7 +503,58 @@ public sealed class Depo
         tx.Commit();
         var evrakYol = Path.Combine(_evrakKok, id.ToString());
         try { if (Directory.Exists(evrakYol)) Directory.Delete(evrakYol, true); } catch { /* yedek */ }
+        DernekLogoSil(id);
         OnbellekDusur();
+    }
+
+    static readonly (string Uzanti, string Mime)[] LogoTurleri =
+    [
+        (".png", "image/png"),
+        (".jpg", "image/jpeg"),
+        (".jpeg", "image/jpeg"),
+        (".webp", "image/webp"),
+        (".gif", "image/gif")
+    ];
+
+    public (string Yol, string ContentType, long Surum)? DernekLogoBul(int dernekId)
+    {
+        if (dernekId <= 0) return null;
+        foreach (var (uzanti, mime) in LogoTurleri)
+        {
+            var yol = Path.Combine(_logoKok, dernekId + uzanti);
+            if (File.Exists(yol))
+                return (yol, mime, File.GetLastWriteTimeUtc(yol).Ticks);
+        }
+        return null;
+    }
+
+    public string DernekLogoGoreliYol(int dernekId)
+    {
+        var l = DernekLogoBul(dernekId);
+        return l is null ? "" : $"/DernekLogo/{dernekId}?v={l.Value.Surum}";
+    }
+
+    public void DernekLogoKaydet(int dernekId, string dosyaAdi, Stream akis)
+    {
+        if (dernekId <= 0) throw new InvalidOperationException("Geçersiz dernek.");
+        var uzanti = Path.GetExtension(dosyaAdi ?? "").ToLowerInvariant();
+        if (Array.TrueForAll(LogoTurleri, t => t.Uzanti != uzanti))
+            throw new InvalidOperationException("Logo yalnızca PNG, JPG, WEBP veya GIF formatında olabilir.");
+
+        DernekLogoSil(dernekId);
+        var hedef = Path.Combine(_logoKok, dernekId + uzanti);
+        using var fs = File.Create(hedef);
+        akis.CopyTo(fs);
+    }
+
+    public void DernekLogoSil(int dernekId)
+    {
+        if (dernekId <= 0) return;
+        foreach (var (uzanti, _) in LogoTurleri)
+        {
+            var yol = Path.Combine(_logoKok, dernekId + uzanti);
+            try { if (File.Exists(yol)) File.Delete(yol); } catch { /* kilit */ }
+        }
     }
 
     public int KullaniciSay(int? dernekId, bool sistem)
@@ -1662,13 +1716,14 @@ public sealed class Depo
         return "";
     }
 
-    static MakbuzKayit OkuMakbuz(SqliteDataReader r, DernekKayit d) => new()
+    MakbuzKayit OkuMakbuz(SqliteDataReader r, DernekKayit d) => new()
     {
         Odeme = OkuOdeme(r),
         UyeTc = r.GetString(7),
         DernekAd = d.Ad,
         DernekAdres = d.Adres,
-        DernekTelefon = d.Telefon
+        DernekTelefon = d.Telefon,
+        DernekLogo = DernekLogoGoreliYol(d.Id)
     };
 
     static OdemeKayit OkuOdeme(SqliteDataReader r) => new()

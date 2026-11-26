@@ -6,6 +6,7 @@
         : yol.StartsWith(p, StringComparison.OrdinalIgnoreCase);
     var dernekler = ViewData["DernekListe"] as List<DernekKayit> ?? [];
     var dernekAd = ViewData["DernekAd"] as string ?? "Dernek Takip";
+    var dernekLogo = ViewData["DernekLogo"] as string ?? "";
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -35,7 +36,13 @@
                     <small>Evrakhane .Net Stüdyosu</small>
                 </div>
             </div>
-            <span class="marka-dernek">@dernekAd</span>
+            <div class="marka-dernek-kapsam">
+                @if (dernekLogo.Length > 0)
+                {
+                    <img class="marka-dernek-logo" src="@dernekLogo" alt="@dernekAd" />
+                }
+                <span class="marka-dernek">@dernekAd</span>
+            </div>
         </div>
         <nav>
             <a class="@(Aktif("/") ? "secili" : null)" asp-page="/Index">Ana Panel</a>

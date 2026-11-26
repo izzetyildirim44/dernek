@@ -86,6 +86,15 @@ app.Use(async (ctx, next) =>
 });
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapGet("/DernekLogo/{id:int}", IResult (int id, Depo depo, HttpContext ctx) =>
+{
+    if (ctx.User.Identity?.IsAuthenticated != true) return Results.Unauthorized();
+    if (!ctx.User.SistemMi() && ctx.User.DernekId() != id) return Results.Forbid();
+    var l = depo.DernekLogoBul(id);
+    if (l is null) return Results.NotFound();
+    ctx.Response.Headers.CacheControl = "private, max-age=86400";
+    return Results.Stream(File.OpenRead(l.Value.Yol), l.Value.ContentType);
+});
 app.MapStaticAssets();
 app.MapRazorPages().WithStaticAssets();
 app.Run();

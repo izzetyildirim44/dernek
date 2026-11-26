@@ -51,11 +51,42 @@
         </div>
     </div>
 
-    <form id="profil-form" class="profil-form-kapsam" method="post">
+    <form id="profil-form" class="profil-form-kapsam" method="post" enctype="multipart/form-data">
         <section class="form profil-kart">
             <div class="profil-kart-baslik">
-                <span class="profil-etiket">01 · KİMLİK VE SİCİL</span>
-                <h2>Dernek Kimlik ve Resmi Kayıt Bilgileri</h2>
+                <span class="profil-etiket">01 · KİMLİK, LOGO VE SİCİL</span>
+                <h2>Dernek Logosu ve Resmi Kayıt Bilgileri</h2>
+            </div>
+
+            <div class="profil-logo-blok">
+                <div class="profil-logo-cerceve">
+                    <img id="profil-logo-onizleme"
+                         src="@(Model.LogoAdres.Length > 0 ? Model.LogoAdres : null)"
+                         alt="@p.Ad Logosu"
+                         hidden="@(Model.LogoAdres.Length == 0 ? "hidden" : null)" />
+                    <div id="profil-logo-bos" class="profil-logo-bos" hidden="@(Model.LogoAdres.Length > 0 ? "hidden" : null)">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="3" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <span>Logo Yok</span>
+                    </div>
+                </div>
+                <div class="profil-logo-icerik">
+                    <strong>Dernek Logosu / Amblemi</strong>
+                    <p>PNG, JPG, WEBP veya GIF formatında yükleyebilirsiniz (en fazla 5 MB). Yüklenen logo sol menüde, tahsilat makbuzlarında ve üye kabul / ayrılış formlarında otomatik kullanılır.</p>
+                    @if (Model.Yonetici)
+                    {
+                        <input type="hidden" name="LogoKaldir" id="profil-logo-kaldir" value="0" />
+                        <input type="file" id="profil-logo-dosya" name="LogoDosya" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif" hidden />
+                        <div class="profil-logo-butonlar no-print">
+                            <label for="profil-logo-dosya" class="btn-satir-ekle profil-logo-sec-btn">Logo Seç / Değiştir</label>
+                            <button type="button" id="profil-logo-sil-btn" class="btn-sil" hidden="@(Model.LogoAdres.Length == 0 ? "hidden" : null)">Logoyu Kaldır</button>
+                            <span id="profil-logo-durum" class="profil-logo-durum"></span>
+                        </div>
+                    }
+                </div>
             </div>
 
             <div class="profil-grid-3">
@@ -403,5 +434,42 @@
         }
         satir.remove();
     });
+
+    var dosyaInp = document.getElementById("profil-logo-dosya");
+    var kaldirInp = document.getElementById("profil-logo-kaldir");
+    var onizleme = document.getElementById("profil-logo-onizleme");
+    var bosKutu = document.getElementById("profil-logo-bos");
+    var silBtn = document.getElementById("profil-logo-sil-btn");
+    var durumYazi = document.getElementById("profil-logo-durum");
+
+    if (dosyaInp && onizleme && bosKutu) {
+        dosyaInp.addEventListener("change", function () {
+            var f = this.files && this.files[0];
+            if (!f) return;
+            if (f.size > 5 * 1024 * 1024) {
+                alert("Logo dosyası en fazla 5 MB olabilir.");
+                this.value = "";
+                return;
+            }
+            if (kaldirInp) kaldirInp.value = "0";
+            onizleme.src = URL.createObjectURL(f);
+            onizleme.hidden = false;
+            bosKutu.hidden = true;
+            if (silBtn) silBtn.hidden = false;
+            if (durumYazi) durumYazi.textContent = "Seçildi: " + f.name + " (Kaydet ile uygulanır)";
+        });
+    }
+
+    if (silBtn && onizleme && bosKutu) {
+        silBtn.addEventListener("click", function () {
+            if (dosyaInp) dosyaInp.value = "";
+            if (kaldirInp) kaldirInp.value = "1";
+            onizleme.removeAttribute("src");
+            onizleme.hidden = true;
+            bosKutu.hidden = false;
+            silBtn.hidden = true;
+            if (durumYazi) durumYazi.textContent = "Logo kaldırılacak (Kaydet ile uygulanır)";
+        });
+    }
 })();
 </script>
