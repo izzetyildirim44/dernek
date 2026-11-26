@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using System.Threading;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
@@ -101,7 +102,8 @@ public sealed class Depo
               Ad TEXT NOT NULL,
               Telefon TEXT NOT NULL DEFAULT '',
               Adres TEXT NOT NULL DEFAULT '',
-              Olusturma TEXT NOT NULL
+              Olusturma TEXT NOT NULL,
+              ProfilJson TEXT NOT NULL DEFAULT ''
             );
             CREATE TABLE IF NOT EXISTS Kullanici (
               Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -212,6 +214,7 @@ public sealed class Depo
         SutunEkle(bag, "ALTER TABLE Uye ADD COLUMN GirisTarih TEXT NOT NULL DEFAULT ''");
         SutunEkle(bag, "ALTER TABLE Kasa ADD COLUMN Makbuz TEXT NOT NULL DEFAULT ''");
         SutunEkle(bag, "ALTER TABLE Uye ADD COLUMN AyrilisTarih TEXT NOT NULL DEFAULT ''");
+        SutunEkle(bag, "ALTER TABLE Dernek ADD COLUMN ProfilJson TEXT NOT NULL DEFAULT ''");
         try
         {
             using var a = bag.CreateCommand();
@@ -399,6 +402,61 @@ public sealed class Depo
         k.Parameters.AddWithValue("$a", ad);
         k.Parameters.AddWithValue("$t", telefon.Trim());
         k.Parameters.AddWithValue("$d", adres.Trim());
+        k.Parameters.AddWithValue("$i", id);
+        k.ExecuteNonQuery();
+        OnbellekDusur();
+    }
+
+    public DernekProfil? DernekProfilGetir(int id)
+    {
+        using var bag = Ac();
+        using var k = bag.CreateCommand();
+        k.CommandText = "SELECT Id, Ad, Telefon, Adres, IFNULL(ProfilJson, '') FROM Dernek WHERE Id=$i";
+        k.Parameters.AddWithValue("$i", id);
+        using var r = k.ExecuteReader();
+        if (!r.Read()) return null;
+
+        var json = r.GetString(4);
+        DernekProfil? p = null;
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            try { p = JsonSerializer.Deserialize<DernekProfil>(json); }
+            catch { p = null; }
+        }
+        p ??= new DernekProfil();
+        p.Id = r.GetInt32(0);
+        p.Ad = r.GetString(1);
+        p.Telefon = r.GetString(2);
+        p.Adres = r.GetString(3);
+        p.BaskanYardimcilari ??= [];
+        p.YonetimUyeleri ??= [];
+        p.DenetimUyeleri ??= [];
+        p.BankaHesaplari ??= [];
+        return p;
+    }
+
+    public void DernekProfilKaydet(int id, DernekProfil p)
+    {
+        var ad = (p.Ad ?? "").Trim();
+        if (ad.Length < 2) throw new InvalidOperationException("Dernek adı en az 2 karakter olmalıdır.");
+
+        p.Id = id;
+        p.Ad = ad;
+        p.Telefon = (p.Telefon ?? "").Trim();
+        p.Adres = (p.Adres ?? "").Trim();
+        p.BaskanYardimcilari ??= [];
+        p.YonetimUyeleri ??= [];
+        p.DenetimUyeleri ??= [];
+        p.BankaHesaplari ??= [];
+
+        var json = JsonSerializer.Serialize(p);
+        using var bag = Ac();
+        using var k = bag.CreateCommand();
+        k.CommandText = "UPDATE Dernek SET Ad=$a, Telefon=$t, Adres=$d, ProfilJson=$j WHERE Id=$i";
+        k.Parameters.AddWithValue("$a", p.Ad);
+        k.Parameters.AddWithValue("$t", p.Telefon);
+        k.Parameters.AddWithValue("$d", p.Adres);
+        k.Parameters.AddWithValue("$j", json);
         k.Parameters.AddWithValue("$i", id);
         k.ExecuteNonQuery();
         OnbellekDusur();

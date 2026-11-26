@@ -47,6 +47,7 @@
             <a class="@(Aktif("/GelirGider") ? "secili" : null)" asp-page="/GelirGider/Index">Gelir-Gider</a>
             <a class="@(Aktif("/Rapor") ? "secili" : null)" asp-page="/Rapor/Index">Rapor</a>
             <a class="@(Aktif("/Kullanicilar") ? "secili" : null)" asp-page="/Kullanicilar/Index">Kullanıcılar</a>
+            <a class="@(Aktif("/Profil") ? "secili" : null)" asp-page="/Profil/Index">Profil</a>
         </nav>
         <div class="yan-alt">
             <span class="yan-kullanici">@User.Ad() · @Oturum.RolYazi(User.Rol())</span>

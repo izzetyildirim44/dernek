@@ -113,11 +113,11 @@
             </div>
             <div class="kabul-imza-satir">
                 <div class="kabul-imza">
-                    <span>Başkan</span>
+                    <span>Başkan@(string.IsNullOrWhiteSpace(Model.Profil.Baskan) ? "" : " — " + Model.Profil.Baskan)</span>
                     <div class="kabul-cizgi kabul-imza-bos"></div>
                 </div>
                 <div class="kabul-imza">
-                    <span>Genel Sekreter</span>
+                    <span>Genel Sekreter@(string.IsNullOrWhiteSpace(Model.Profil.GenelSekreter) ? "" : " — " + Model.Profil.GenelSekreter)</span>
                     <div class="kabul-cizgi kabul-imza-bos"></div>
                 </div>
             </div>

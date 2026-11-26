@@ -160,3 +160,62 @@ public sealed class YilRapor
     public decimal Devreden { get; set; }
     public decimal Toplam { get; set; }
 }
+
+public sealed class GorevliKayit
+{
+    public string AdSoyad { get; set; } = "";
+    public string Unvan { get; set; } = "";
+    public string Telefon { get; set; } = "";
+}
+
+public sealed class BankaKayit
+{
+    public string BankaAdi { get; set; } = "";
+    public string HesapAdi { get; set; } = "";
+    public string Iban { get; set; } = "";
+}
+
+public sealed class DernekProfil
+{
+    public int Id { get; set; }
+    public string Ad { get; set; } = "";
+    public string KisaAd { get; set; } = "";
+    public string KutukNo { get; set; } = "";
+    public string KurulusTarihi { get; set; } = "";
+    public string Statu { get; set; } = "Dernek";
+    public string FaaliyetAlani { get; set; } = "";
+    public string VergiDairesi { get; set; } = "";
+    public string VergiNo { get; set; } = "";
+    public string Amac { get; set; } = "";
+
+    public string GorevDonemi { get; set; } = "";
+    public string SonGenelKurulTarihi { get; set; } = "";
+    public string KararDefterNo { get; set; } = "";
+
+    public string Baskan { get; set; } = "";
+    public string BaskanTelefon { get; set; } = "";
+    public List<GorevliKayit> BaskanYardimcilari { get; set; } = [];
+    public string GenelSekreter { get; set; } = "";
+    public string GenelSekreterTelefon { get; set; } = "";
+    public string Sayman { get; set; } = "";
+    public string SaymanTelefon { get; set; } = "";
+    public string Veznedar { get; set; } = "";
+    public string VeznedarTelefon { get; set; } = "";
+    public List<GorevliKayit> YonetimUyeleri { get; set; } = [];
+
+    public string DenetimBaskani { get; set; } = "";
+    public string DenetimBaskaniTelefon { get; set; } = "";
+    public List<GorevliKayit> DenetimUyeleri { get; set; } = [];
+
+    public string Telefon { get; set; } = "";
+    public string Telefon2 { get; set; } = "";
+    public string Eposta { get; set; } = "";
+    public string KepAdresi { get; set; } = "";
+    public string WebSitesi { get; set; } = "";
+    public string SosyalMedya { get; set; } = "";
+    public string Il { get; set; } = "";
+    public string Ilce { get; set; } = "";
+    public string Adres { get; set; } = "";
+    public List<BankaKayit> BankaHesaplari { get; set; } = [];
+    public string Notlar { get; set; } = "";
+}

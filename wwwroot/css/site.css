@@ -2289,3 +2289,222 @@ body:has(.uye-sayfa.yazdir) .icerik {
   .zaman-kutu { display: none; }
   .grid-2, .grid-3, .kasa-giris { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   DERNEK PROFİLİ VE EKLEMELİ KURUL YÖNETİMİ (/Profil)
+   ========================================================================== */
+.profil-sayfa {
+  max-width: 1120px;
+}
+
+.profil-ust-baslik {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profil-ust-aksiyon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profil-ozet-kartlar .kart strong {
+  font-family: var(--font-baslik);
+  font-size: 16.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profil-form-kapsam {
+  display: grid;
+  gap: 20px;
+}
+
+.profil-kart {
+  max-width: none !important;
+  margin: 0 !important;
+  gap: 15px;
+}
+
+.profil-kart-baslik {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.profil-etiket {
+  display: inline-block;
+  font-family: var(--font-kod);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--turkuaz);
+  margin-bottom: 4px;
+}
+
+.profil-kart-baslik h2 {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.profil-grid-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+
+.profil-gorev-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.profil-gorev-grid.tek-satir {
+  grid-template-columns: 1fr;
+  max-width: 540px;
+}
+
+.profil-gorev-kutu {
+  padding: 13px 15px;
+  border-radius: 13px;
+  background: rgba(4, 9, 24, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  display: grid;
+  gap: 9px;
+}
+
+.profil-gorev-baslik {
+  font-family: var(--font-baslik);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--altin);
+}
+
+.profil-gorev-alanlar {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 10px;
+}
+
+.eklemeli-blok {
+  padding: 15px 16px;
+  border-radius: 14px;
+  background: rgba(4, 9, 24, 0.45);
+  border: 1px solid rgba(243, 210, 138, 0.16);
+  display: grid;
+  gap: 12px;
+}
+
+.eklemeli-ust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eklemeli-ust h3 {
+  margin: 0 0 2px;
+  font-family: var(--font-baslik);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--yazi);
+}
+
+.eklemeli-ust small {
+  color: var(--soluk-2);
+  font-size: 12px;
+}
+
+.btn-satir-ekle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 9px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.40);
+  color: #6ee7b7;
+  font-family: var(--font-baslik);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.btn-satir-ekle:hover {
+  background: rgba(16, 185, 129, 0.28);
+  border-color: rgba(16, 185, 129, 0.72);
+  color: #fff;
+}
+
+.eklemeli-liste {
+  display: grid;
+  gap: 8px;
+}
+
+.eklemeli-satir {
+  display: grid;
+  grid-template-columns: 1.2fr 1.35fr 0.9fr auto;
+  gap: 9px;
+  align-items: center;
+}
+
+.eklemeli-satir.banka-satir {
+  grid-template-columns: 1fr 1fr 1.55fr auto;
+}
+
+.eklemeli-satir input {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .profil-grid-3,
+  .profil-gorev-grid,
+  .profil-gorev-alanlar {
+    grid-template-columns: 1fr;
+  }
+  .eklemeli-satir,
+  .eklemeli-satir.banka-satir {
+    grid-template-columns: 1fr;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media print {
+  .profil-sayfa .uyari,
+  .profil-sayfa .tamam { display: none !important; }
+  .profil-kart,
+  .profil-gorev-kutu,
+  .eklemeli-blok,
+  .profil-ozet-kartlar .kart {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  .profil-kart h2,
+  .eklemeli-ust h3,
+  .profil-gorev-baslik,
+  .profil-ozet-kartlar .kart strong,
+  .profil-etiket {
+    color: #000 !important;
+  }
+  .profil-sayfa input,
+  .profil-sayfa select,
+  .profil-sayfa textarea {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  .eklemeli-satir,
+  .eklemeli-satir.banka-satir {
+    grid-template-columns: 1.2fr 1.35fr 0.9fr !important;
+  }
+}

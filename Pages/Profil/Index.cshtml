@@ -1,0 +1,407 @@
+@page
+@model DernekTakip.Pages.Profil.IndexModel
+@using DernekTakip.Servisler
+@{
+    ViewData["Title"] = "Profil";
+    var p = Model.P;
+    var byListe = p.BaskanYardimcilari.Count > 0 ? p.BaskanYardimcilari : [new GorevliKayit()];
+    var ykListe = p.YonetimUyeleri.Count > 0 ? p.YonetimUyeleri : [new GorevliKayit { Unvan = "Asil Üye" }];
+    var dkListe = p.DenetimUyeleri.Count > 0 ? p.DenetimUyeleri : [new GorevliKayit { Unvan = "Asil Üye" }];
+    var bkListe = p.BankaHesaplari.Count > 0 ? p.BankaHesaplari : [new BankaKayit()];
+}
+
+<div class="profil-sayfa">
+    <div class="profil-ust-baslik">
+        <div>
+            <h1>Dernek Profili</h1>
+            <p class="ozet">Seçili derneğin resmi künye, yönetim kurulu, denetim kurulu, iletişim ve banka bilgileri.</p>
+        </div>
+        <div class="profil-ust-aksiyon no-print">
+            <button type="button" class="btn-ince" onclick="window.print()">Künyeyi Yazdır</button>
+            @if (Model.Yonetici)
+            {
+                <button type="submit" form="profil-form" class="btn">Kaydet</button>
+            }
+        </div>
+    </div>
+
+    @if (Model.Uyari is not null) { <p class="uyari">@Model.Uyari</p> }
+    @if (Model.Tamam is not null) { <p class="tamam">@Model.Tamam</p> }
+    @if (!Model.Yonetici)
+    {
+        <p class="uyari">Profil bilgilerini düzenlemek için yönetici yetkisi gerekir.</p>
+    }
+
+    <div class="kartlar sayilar profil-ozet-kartlar">
+        <div class="kart">
+            <strong>@(string.IsNullOrWhiteSpace(p.Baskan) ? "—" : p.Baskan)</strong>
+            <span>Yönetim Kurulu Başkanı</span>
+        </div>
+        <div class="kart">
+            <strong>@p.BaskanYardimcilari.Count</strong>
+            <span>Başkan Yardımcısı</span>
+        </div>
+        <div class="kart">
+            <strong>@(string.IsNullOrWhiteSpace(p.Sayman) ? "—" : p.Sayman)</strong>
+            <span>Sayman (Muhasip)</span>
+        </div>
+        <div class="kart">
+            <strong>@(string.IsNullOrWhiteSpace(p.KutukNo) ? "—" : p.KutukNo)</strong>
+            <span>DERBİS Kütük No</span>
+        </div>
+    </div>
+
+    <form id="profil-form" class="profil-form-kapsam" method="post">
+        <section class="form profil-kart">
+            <div class="profil-kart-baslik">
+                <span class="profil-etiket">01 · KİMLİK VE SİCİL</span>
+                <h2>Dernek Kimlik ve Resmi Kayıt Bilgileri</h2>
+            </div>
+
+            <div class="profil-grid-3">
+                <label class="profil-iki-sutun">Dernek Resmi Adı
+                    <input name="Ad" value="@p.Ad" required placeholder="Örn: Tecde Yardımlaşma ve Dayanışma Derneği" />
+                </label>
+                <label>Kısa Adı / Kısaltma
+                    <input name="KisaAd" value="@p.KisaAd" placeholder="Örn: TECDER" />
+                </label>
+            </div>
+
+            <div class="grid-3">
+                <label>DERBİS Kütük No
+                    <input name="KutukNo" value="@p.KutukNo" placeholder="Örn: 44-001-000" />
+                </label>
+                <label>Kuruluş Tarihi
+                    <input name="KurulusTarihi" type="date" value="@p.KurulusTarihi" />
+                </label>
+                <label>Dernek Statüsü
+                    <select name="Statu">
+                        @foreach (var s in new[] { "Dernek", "Kamu Yararına Çalışan Dernek", "Şube", "Federasyon", "Konfederasyon", "Sandık / Lokal" })
+                        {
+                            if (s == p.Statu)
+                            {
+                                <option value="@s" selected>@s</option>
+                            }
+                            else
+                            {
+                                <option value="@s">@s</option>
+                            }
+                        }
+                    </select>
+                </label>
+            </div>
+
+            <div class="grid-3">
+                <label>Faaliyet Alanı / Türü
+                    <input name="FaaliyetAlani" value="@p.FaaliyetAlani" placeholder="Örn: Yardımlaşma, Eğitim, Kültür" />
+                </label>
+                <label>Vergi Dairesi
+                    <input name="VergiDairesi" value="@p.VergiDairesi" placeholder="Örn: Fırat Vergi Dairesi" />
+                </label>
+                <label>Vergi Kimlik No
+                    <input name="VergiNo" value="@p.VergiNo" maxlength="11" placeholder="10 haneli vergi no" />
+                </label>
+            </div>
+
+            <label>Dernek Amacı ve Çalışma Konusu Özeti
+                <textarea name="Amac" placeholder="Tüzükte yer alan dernek amacı ve faaliyet özeti...">@p.Amac</textarea>
+            </label>
+        </section>
+
+        <section class="form profil-kart">
+            <div class="profil-kart-baslik">
+                <span class="profil-etiket">02 · YÖNETİM KURULU</span>
+                <h2>Yönetim Kurulu ve Görev Dağılımı</h2>
+            </div>
+
+            <div class="grid-3">
+                <label>Görev Dönemi
+                    <input name="GorevDonemi" value="@p.GorevDonemi" placeholder="Örn: 2025 - 2028" />
+                </label>
+                <label>Son Genel Kurul Tarihi
+                    <input name="SonGenelKurulTarihi" type="date" value="@p.SonGenelKurulTarihi" />
+                </label>
+                <label>Karar Defteri / Tasdik No
+                    <input name="KararDefterNo" value="@p.KararDefterNo" placeholder="Örn: 2026 / Noter Yevmiye No" />
+                </label>
+            </div>
+
+            <div class="profil-gorev-grid">
+                <div class="profil-gorev-kutu">
+                    <span class="profil-gorev-baslik">Yönetim Kurulu Başkanı</span>
+                    <div class="profil-gorev-alanlar">
+                        <label>Ad Soyad
+                            <input name="Baskan" value="@p.Baskan" placeholder="Başkan adı soyadı" />
+                        </label>
+                        <label>Telefon
+                            <input name="BaskanTelefon" value="@p.BaskanTelefon" placeholder="05xx xxx xx xx" />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="profil-gorev-kutu">
+                    <span class="profil-gorev-baslik">Genel Sekreter (Sekreter)</span>
+                    <div class="profil-gorev-alanlar">
+                        <label>Ad Soyad
+                            <input name="GenelSekreter" value="@p.GenelSekreter" placeholder="Genel sekreter adı soyadı" />
+                        </label>
+                        <label>Telefon
+                            <input name="GenelSekreterTelefon" value="@p.GenelSekreterTelefon" placeholder="05xx xxx xx xx" />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="profil-gorev-kutu">
+                    <span class="profil-gorev-baslik">Sayman (Muhasip)</span>
+                    <div class="profil-gorev-alanlar">
+                        <label>Ad Soyad
+                            <input name="Sayman" value="@p.Sayman" placeholder="Sayman adı soyadı" />
+                        </label>
+                        <label>Telefon
+                            <input name="SaymanTelefon" value="@p.SaymanTelefon" placeholder="05xx xxx xx xx" />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="profil-gorev-kutu">
+                    <span class="profil-gorev-baslik">Veznedar / Mali Görevli</span>
+                    <div class="profil-gorev-alanlar">
+                        <label>Ad Soyad
+                            <input name="Veznedar" value="@p.Veznedar" placeholder="Veznedar adı soyadı (varsa)" />
+                        </label>
+                        <label>Telefon
+                            <input name="VeznedarTelefon" value="@p.VeznedarTelefon" placeholder="05xx xxx xx xx" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eklemeli-blok">
+                <div class="eklemeli-ust">
+                    <div>
+                        <h3>Başkan Yardımcıları</h3>
+                        <small>İstediğiniz sayıda Başkan Yardımcısı ekleyebilir ve görev alanlarını belirtebilirsiniz.</small>
+                    </div>
+                    <button type="button" class="btn-satir-ekle no-print" data-hedef="by-liste" data-sablon="by-sablon">+ Başkan Yardımcısı Ekle</button>
+                </div>
+                <div class="eklemeli-liste" id="by-liste">
+                    @foreach (var u in byListe)
+                    {
+                        <div class="eklemeli-satir">
+                            <input name="ByAd" value="@u.AdSoyad" placeholder="Başkan Yardımcısı Ad Soyad" />
+                            <input name="ByUnvan" value="@u.Unvan" placeholder="Görev / Sorumluluk (Örn: 1. Başkan Yard., Teşkilat, İdari İşler)" />
+                            <input name="ByTel" value="@u.Telefon" placeholder="Telefon" />
+                            <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="eklemeli-blok">
+                <div class="eklemeli-ust">
+                    <div>
+                        <h3>Diğer Yönetim Kurulu Üyeleri (Asil / Yedek)</h3>
+                        <small>Yönetim kurulundaki diğer asil ve yedek üyeleri ekleyin.</small>
+                    </div>
+                    <button type="button" class="btn-satir-ekle no-print" data-hedef="yk-liste" data-sablon="yk-sablon">+ Yönetim Kurulu Üyesi Ekle</button>
+                </div>
+                <div class="eklemeli-liste" id="yk-liste">
+                    @foreach (var u in ykListe)
+                    {
+                        <div class="eklemeli-satir">
+                            <input name="YkAd" value="@u.AdSoyad" placeholder="Üye Ad Soyad" />
+                            <input name="YkUnvan" value="@u.Unvan" placeholder="Asil Üye / Yedek Üye / Komisyon" />
+                            <input name="YkTel" value="@u.Telefon" placeholder="Telefon" />
+                            <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="form profil-kart">
+            <div class="profil-kart-baslik">
+                <span class="profil-etiket">03 · DENETİM KURULU</span>
+                <h2>Denetim Kurulu Bilgileri</h2>
+            </div>
+
+            <div class="profil-gorev-grid tek-satir">
+                <div class="profil-gorev-kutu">
+                    <span class="profil-gorev-baslik">Denetim Kurulu Başkanı</span>
+                    <div class="profil-gorev-alanlar">
+                        <label>Ad Soyad
+                            <input name="DenetimBaskani" value="@p.DenetimBaskani" placeholder="Denetim kurulu başkanı adı soyadı" />
+                        </label>
+                        <label>Telefon
+                            <input name="DenetimBaskaniTelefon" value="@p.DenetimBaskaniTelefon" placeholder="05xx xxx xx xx" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eklemeli-blok">
+                <div class="eklemeli-ust">
+                    <div>
+                        <h3>Denetim Kurulu Üyeleri (Asil / Yedek)</h3>
+                        <small>Denetim kurulundaki diğer asil ve yedek üyeleri ekleyin.</small>
+                    </div>
+                    <button type="button" class="btn-satir-ekle no-print" data-hedef="dk-liste" data-sablon="dk-sablon">+ Denetim Üyesi Ekle</button>
+                </div>
+                <div class="eklemeli-liste" id="dk-liste">
+                    @foreach (var u in dkListe)
+                    {
+                        <div class="eklemeli-satir">
+                            <input name="DkAd" value="@u.AdSoyad" placeholder="Denetim Üyesi Ad Soyad" />
+                            <input name="DkUnvan" value="@u.Unvan" placeholder="Asil Üye / Yedek Üye" />
+                            <input name="DkTel" value="@u.Telefon" placeholder="Telefon" />
+                            <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="form profil-kart">
+            <div class="profil-kart-baslik">
+                <span class="profil-etiket">04 · İLETİŞİM, ADRES VE BANKA</span>
+                <h2>İletişim, Merkez Adresi ve Banka (IBAN) Bilgileri</h2>
+            </div>
+
+            <div class="grid-3">
+                <label>Dernek Telefonu
+                    <input name="Telefon" value="@p.Telefon" placeholder="0xxx xxx xx xx" />
+                </label>
+                <label>İkinci Telefon / WhatsApp
+                    <input name="Telefon2" value="@p.Telefon2" placeholder="05xx xxx xx xx" />
+                </label>
+                <label>E-posta Adresi
+                    <input name="Eposta" value="@p.Eposta" placeholder="iletisim@dernek.org.tr" />
+                </label>
+            </div>
+
+            <div class="grid-3">
+                <label>KEP Adresi
+                    <input name="KepAdresi" value="@p.KepAdresi" placeholder="ornek@hs01.kep.tr" />
+                </label>
+                <label>Web Sitesi
+                    <input name="WebSitesi" value="@p.WebSitesi" placeholder="https://..." />
+                </label>
+                <label>Sosyal Medya
+                    <input name="SosyalMedya" value="@p.SosyalMedya" placeholder="@@kullaniciadi" />
+                </label>
+            </div>
+
+            <div class="grid-2">
+                <label>İl
+                    <input name="Il" value="@p.Il" placeholder="Örn: Malatya" />
+                </label>
+                <label>İlçe
+                    <input name="Ilce" value="@p.Ilce" placeholder="Örn: Yeşilyurt" />
+                </label>
+            </div>
+
+            <label>Dernek Merkez Açık Adresi
+                <input name="Adres" value="@p.Adres" placeholder="Mahalle, cadde, sokak, bina ve kapı numarası" />
+            </label>
+
+            <div class="eklemeli-blok">
+                <div class="eklemeli-ust">
+                    <div>
+                        <h3>Banka Hesapları ve IBAN Numaraları</h3>
+                        <small>Aidat ve bağış tahsilatları için kullanılan dernek banka hesaplarını ekleyin.</small>
+                    </div>
+                    <button type="button" class="btn-satir-ekle no-print" data-hedef="bk-liste" data-sablon="bk-sablon">+ Banka / IBAN Ekle</button>
+                </div>
+                <div class="eklemeli-liste" id="bk-liste">
+                    @foreach (var b in bkListe)
+                    {
+                        <div class="eklemeli-satir banka-satir">
+                            <input name="BkBanka" value="@b.BankaAdi" placeholder="Banka / Şube Adı" />
+                            <input name="BkHesap" value="@b.HesapAdi" placeholder="Hesap Türü (Örn: Aidat TL Hesabı)" />
+                            <input name="BkIban" value="@b.Iban" placeholder="TR00 0000 0000 0000 0000 0000 00" />
+                            <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <label>Ek Notlar ve Özel Bilgiler
+                <textarea name="Notlar" placeholder="Dernek sicili, lokal izni, taşınmaz bilgisi veya diğer idari notlar...">@p.Notlar</textarea>
+            </label>
+
+            @if (Model.Yonetici)
+            {
+                <div class="form-aksiyon no-print">
+                    <button type="submit">Profil Bilgilerini Kaydet</button>
+                    <button type="button" class="btn-ince" onclick="window.print()">Künyeyi Yazdır</button>
+                </div>
+            }
+        </section>
+    </form>
+</div>
+
+<template id="by-sablon">
+    <div class="eklemeli-satir">
+        <input name="ByAd" placeholder="Başkan Yardımcısı Ad Soyad" />
+        <input name="ByUnvan" placeholder="Görev / Sorumluluk (Örn: 1. Başkan Yard., Teşkilat, İdari İşler)" />
+        <input name="ByTel" placeholder="Telefon" />
+        <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+    </div>
+</template>
+
+<template id="yk-sablon">
+    <div class="eklemeli-satir">
+        <input name="YkAd" placeholder="Üye Ad Soyad" />
+        <input name="YkUnvan" value="Asil Üye" placeholder="Asil Üye / Yedek Üye / Komisyon" />
+        <input name="YkTel" placeholder="Telefon" />
+        <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+    </div>
+</template>
+
+<template id="dk-sablon">
+    <div class="eklemeli-satir">
+        <input name="DkAd" placeholder="Denetim Üyesi Ad Soyad" />
+        <input name="DkUnvan" value="Asil Üye" placeholder="Asil Üye / Yedek Üye" />
+        <input name="DkTel" placeholder="Telefon" />
+        <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+    </div>
+</template>
+
+<template id="bk-sablon">
+    <div class="eklemeli-satir banka-satir">
+        <input name="BkBanka" placeholder="Banka / Şube Adı" />
+        <input name="BkHesap" placeholder="Hesap Türü (Örn: Aidat TL Hesabı)" />
+        <input name="BkIban" placeholder="TR00 0000 0000 0000 0000 0000 00" />
+        <button type="button" class="btn-sil btn-satir-sil no-print" title="Satırı kaldır">Sil</button>
+    </div>
+</template>
+
+<script>
+(function () {
+    document.querySelectorAll(".btn-satir-ekle").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var hedef = document.getElementById(this.getAttribute("data-hedef"));
+            var sablon = document.getElementById(this.getAttribute("data-sablon"));
+            if (!hedef || !sablon || !sablon.content) return;
+            var klon = sablon.content.cloneNode(true);
+            hedef.appendChild(klon);
+            var sonSatir = hedef.lastElementChild;
+            var ilkInput = sonSatir && sonSatir.querySelector("input");
+            if (ilkInput) ilkInput.focus();
+        });
+    });
+
+    document.addEventListener("click", function (e) {
+        var silBtn = e.target.closest(".btn-satir-sil");
+        if (!silBtn) return;
+        var satir = silBtn.closest(".eklemeli-satir");
+        var liste = satir && satir.parentElement;
+        if (!satir || !liste) return;
+        if (liste.querySelectorAll(".eklemeli-satir").length <= 1) {
+            satir.querySelectorAll("input").forEach(function (inp) { inp.value = ""; });
+            return;
+        }
+        satir.remove();
+    });
+})();
+</script>

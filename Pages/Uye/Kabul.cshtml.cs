@@ -9,6 +9,7 @@ public class KabulModel : DernekSayfa
     public KabulModel(Depo depo) : base(depo) { }
 
     public DernekKayit Dernek { get; private set; } = new();
+    public DernekProfil Profil { get; private set; } = new();
     public UyeKayit? Uye { get; private set; }
 
     public IActionResult OnGet(int? id)
@@ -16,6 +17,7 @@ public class KabulModel : DernekSayfa
         var d = Depo.DernekGetir(DernekId);
         if (d is null) return NotFound();
         Dernek = d;
+        Profil = Depo.DernekProfilGetir(DernekId) ?? new DernekProfil { Id = d.Id, Ad = d.Ad };
         if (id is int uyeId && uyeId > 0)
         {
             Uye = Depo.UyeGetir(DernekId, uyeId);
