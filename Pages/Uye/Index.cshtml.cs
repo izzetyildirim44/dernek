@@ -32,10 +32,17 @@ public class IndexModel : DernekSayfa
     public string AraJson { get; private set; } = "[]";
     public string AraSecilen { get; private set; } = "";
     public bool KayitPencere { get; private set; }
+    public bool ExcelPencere { get; private set; }
     public bool Yazdir { get; private set; }
 
-    public void OnGet(int? id, string? durum, int yil = 0, int odemeler = 0, int sayfa = 1, int sec = 0, int yeni = 0, int yazdir = 0)
+    public void OnGet(int? id, string? durum, int yil = 0, int odemeler = 0, int sayfa = 1, int sec = 0, int yeni = 0, int yazdir = 0, int excel = 0, int eklenen = 0, int atlanan = 0)
     {
+        if (eklenen > 0 || atlanan > 0)
+        {
+            Tamam = eklenen > 0
+                ? $"Excel dosyasından {eklenen} üye hızlıca eklendi." + (atlanan > 0 ? $" ({atlanan} mevcut kayıt atlandı.)" : "")
+                : $"Seçilen dosyadaki {atlanan} üye zaten kayıtlı olduğu için yeni kayıt eklenmedi.";
+        }
         Gruplar = Depo.GrupListe(DernekId);
         Yillar = Depo.KayitYillari(DernekId);
         Yil = yil == 0 ? DateTime.Now.Year : yil;
@@ -75,6 +82,11 @@ public class IndexModel : DernekSayfa
             OdemelerUyeId = odemeler;
             OdemelerAd = ou.AdSoyad;
             UyeOdemeler = Depo.UyeOdemeListe(DernekId, odemeler, Yil);
+            return;
+        }
+        if (excel == 1)
+        {
+            ExcelPencere = true;
             return;
         }
         if (yeni == 1 && id is null)
@@ -118,9 +130,47 @@ public class IndexModel : DernekSayfa
 
     public string YeniUyeAdres() => ListeAdres() + "&yeni=1";
 
+    public string ExcelAdres() => ListeAdres() + "&excel=1";
+
+    public string OrnekExcelAdres() => Yol("/Uye?handler=OrnekExcel");
+
     public string YazdirAdres() => ListeAdres() + "&yazdir=1";
 
     public string OdemelerAdres(int uyeId) => ListeAdres() + "&odemeler=" + uyeId;
+
+    public IActionResult OnGetOrnekExcel()
+    {
+        var d = Depo.DernekGetir(DernekId);
+        var gruplar = Depo.GrupListe(DernekId);
+        var bytes = UyeExcelServisi.OrnekExcelOlustur(d?.Ad ?? "Dernek", gruplar);
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ornek-uye-listesi.xlsx");
+    }
+
+    public IActionResult OnPostExcelYukle(IFormFile? excelDosya, int varsayilanGrupId)
+    {
+        try
+        {
+            if (excelDosya is null || excelDosya.Length == 0)
+                throw new InvalidOperationException("Lütfen yüklenecek Excel (.xlsx, .xls) veya CSV dosyasını seçin.");
+            if (excelDosya.Length > 10_000_000)
+                throw new InvalidOperationException("Excel dosyası en fazla 10 MB olabilir.");
+
+            using var akis = excelDosya.OpenReadStream();
+            var satirlar = UyeExcelServisi.Oku(akis, excelDosya.FileName);
+            if (satirlar.Count == 0)
+                throw new InvalidOperationException("Dosyada eklenecek geçerli üye satırı bulunamadı. Lütfen Örnek Excel şablonunu indirip sütunları kontrol edin.");
+
+            var (eklenen, atlanan, _) = Depo.UyeTopluEkle(DernekId, satirlar, varsayilanGrupId);
+            return LocalRedirect(ListeAdres() + $"&eklenen={eklenen}&atlanan={atlanan}");
+        }
+        catch (Exception ex)
+        {
+            Uyari = ex.Message;
+            OnGet(null, DurumFiltre, Yil, excel: 1);
+            ExcelPencere = true;
+            return Page();
+        }
+    }
 
     public IActionResult OnPostKaydet()
     {

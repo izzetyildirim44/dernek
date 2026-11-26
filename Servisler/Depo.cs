@@ -849,6 +849,151 @@ public sealed class Depo
         OnbellekDusur(dernekId);
     }
 
+    public (int Eklenen, int AtlananMevcut, int Gecersiz) UyeTopluEkle(
+        int dernekId,
+        IReadOnlyList<UyeExcelSatir> satirlar,
+        int varsayilanGrupId)
+    {
+        if (satirlar.Count == 0)
+            return (0, 0, 0);
+
+        var gruplar = GrupListe(dernekId);
+        if (gruplar.Count == 0)
+            throw new InvalidOperationException("Derneğe ait üye grubu bulunamadı.");
+
+        if (varsayilanGrupId == 0 || gruplar.All(g => g.Id != varsayilanGrupId))
+            varsayilanGrupId = gruplar[0].Id;
+
+        var mevcutTcler = new HashSet<string>(StringComparer.Ordinal);
+        var mevcutAdTeller = new HashSet<string>(StringComparer.Ordinal);
+        using var bag = Ac();
+        using (var mk = bag.CreateCommand())
+        {
+            mk.CommandText = "SELECT AdSoyad, Tc, Telefon FROM Uye WHERE DernekId=$d";
+            mk.Parameters.AddWithValue("$d", dernekId);
+            using var mr = mk.ExecuteReader();
+            while (mr.Read())
+            {
+                var ad = mr.GetString(0).Trim().ToLower(Tr);
+                var tc = Rakamlar(mr.GetString(1));
+                var tel = Rakamlar(mr.GetString(2));
+                if (tc.Length > 0) mevcutTcler.Add(tc);
+                mevcutAdTeller.Add(ad + "|" + tel);
+            }
+        }
+
+        var bugun = DateTime.Today.ToString("yyyy-MM-dd");
+        var simdi = Simdi();
+        var eklenen = 0;
+        var atlanan = 0;
+        var gecersiz = 0;
+
+        using var tx = bag.BeginTransaction();
+        foreach (var s in satirlar)
+        {
+            var adSoyad = (s.AdSoyad ?? "").Trim();
+            if (adSoyad.Length < 2)
+            {
+                gecersiz++;
+                continue;
+            }
+
+            var tcTemiz = Rakamlar(s.Tc);
+            if (tcTemiz.Length > 11) tcTemiz = tcTemiz[..11];
+            var telMetin = (s.Telefon ?? "").Trim();
+            var telRakam = Rakamlar(telMetin);
+            var adAnahtar = adSoyad.ToLower(Tr) + "|" + telRakam;
+
+            if ((tcTemiz.Length > 0 && mevcutTcler.Contains(tcTemiz)) || mevcutAdTeller.Contains(adAnahtar))
+            {
+                atlanan++;
+                continue;
+            }
+
+            var grupId = varsayilanGrupId;
+            var grupMetin = (s.Grup ?? "").Trim();
+            if (grupMetin.Length > 0)
+            {
+                var eslesen = gruplar.FirstOrDefault(g =>
+                    string.Compare(g.Ad, grupMetin, Tr, CompareOptions.IgnoreCase) == 0 ||
+                    g.Ad.StartsWith(grupMetin, ignoreCase: true, Tr));
+                if (eslesen is not null)
+                    grupId = eslesen.Id;
+            }
+
+            var durumHam = (s.Durum ?? "").Trim();
+            var durum = durumHam.StartsWith("Ayr", StringComparison.OrdinalIgnoreCase) ||
+                        durumHam.StartsWith("Pasif", StringComparison.OrdinalIgnoreCase) ||
+                        durumHam.StartsWith("İstifa", StringComparison.OrdinalIgnoreCase)
+                ? "Ayrıldı"
+                : "Aktif";
+
+            var girisTarih = TarihGun(s.GirisTarih);
+            if (girisTarih.Length == 0) girisTarih = bugun;
+
+            var uyeId = Ekle(bag, tx, """
+                INSERT INTO Uye(DernekId, GrupId, AdSoyad, Tc, Telefon, Eposta, Adres, Durum, Kayit, GirisTarih, AyrilisTarih)
+                VALUES($d,$g,$a,$t,$p,$e,$r,$s,$k,$gi,'')
+                """,
+                ("$d", dernekId),
+                ("$g", grupId),
+                ("$a", adSoyad),
+                ("$t", tcTemiz),
+                ("$p", telMetin),
+                ("$e", (s.Eposta ?? "").Trim()),
+                ("$r", (s.Adres ?? "").Trim()),
+                ("$s", durum),
+                ("$k", simdi),
+                ("$gi", girisTarih));
+
+            if (durum == "Aktif")
+                YeniUyeBorcYazTx(bag, tx, dernekId, uyeId, grupId);
+
+            if (tcTemiz.Length > 0) mevcutTcler.Add(tcTemiz);
+            mevcutAdTeller.Add(adAnahtar);
+            eklenen++;
+        }
+
+        tx.Commit();
+        if (eklenen > 0) OnbellekDusur(dernekId);
+        return (eklenen, atlanan, gecersiz);
+    }
+
+    static string Rakamlar(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "";
+        Span<char> buf = stackalloc char[s.Length];
+        var n = 0;
+        foreach (var ch in s)
+        {
+            if (char.IsAsciiDigit(ch)) buf[n++] = ch;
+        }
+        return new string(buf[..n]);
+    }
+
+    static void YeniUyeBorcYazTx(SqliteConnection bag, SqliteTransaction tx, int dernekId, int uyeId, int grupId)
+    {
+        var yil = DateTime.Now.Year;
+        using var k = bag.CreateCommand();
+        k.Transaction = tx;
+        k.CommandText = """
+            SELECT g.Aidatli, IFNULL(t.A1,0), IFNULL(t.Giris,0)
+            FROM UyeGrup g
+            LEFT JOIN AidatTanim t ON t.DernekId=g.DernekId AND t.GrupId=g.Id AND t.Yil=$y
+            WHERE g.Id=$g AND g.DernekId=$d
+            """;
+        k.Parameters.AddWithValue("$d", dernekId);
+        k.Parameters.AddWithValue("$g", grupId);
+        k.Parameters.AddWithValue("$y", yil);
+        using var r = k.ExecuteReader();
+        if (!r.Read() || r.GetInt32(0) == 0) return;
+        var yillik = Convert.ToDecimal(r.GetDouble(1));
+        var giris = Convert.ToDecimal(r.GetDouble(2));
+        r.Close();
+        if (yillik > 0) BorcSatirYaz(bag, tx, dernekId, uyeId, yil, 1, yillik);
+        if (giris > 0) BorcSatirYaz(bag, tx, dernekId, uyeId, yil, 0, giris);
+    }
+
     static void YeniUyeBorcYaz(SqliteConnection bag, int dernekId, int uyeId, int grupId)
     {
         var yil = DateTime.Now.Year;

@@ -69,6 +69,8 @@
                 <path fill="currentColor" d="M7 3h10v5H7V3zm12 6H5a2 2 0 0 0-2 2v6h4v-2h10v2h4v-6a2 2 0 0 0-2-2zM7 17h10v4H7v-4z"/>
             </svg>
         </a>
+        <a class="btn-ince btn-ornek-excel" href="@Model.OrnekExcelAdres()" title="Örnek Excel şablonunu indir">Örnek Excel</a>
+        <a class="btn btn-excel-ekle" id="btn-excel-ac" href="@Model.ExcelAdres()">Excel'den Ekle</a>
         <a class="btn btn-yeni-uye" href="@Model.YeniUyeAdres()">Yeni Üye</a>
     </div>
 </div>
@@ -256,3 +258,133 @@
     });
     </script>
 }
+
+<div class="uye-pencere-arka" id="uye-excel-arka" hidden="@(!Model.ExcelPencere ? "hidden" : null)">
+    <div class="uye-pencere uye-excel-pencere" role="dialog" aria-modal="true" aria-labelledby="uye-excel-baslik">
+        <form id="uye-excel-form" class="form" method="post" action="@Model.Yol("/Uye?handler=ExcelYukle")" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="DurumFiltre" value="@Model.DurumFiltre" />
+            <input type="hidden" name="Yil" value="@Model.Yil" />
+
+            <div class="baslik-satir">
+                <h2 id="uye-excel-baslik">Excel'den Hızlı Üye Ekle</h2>
+                <a class="btn-satir-ekle" href="@Model.OrnekExcelAdres()">Örnek Excel İndir (.xlsx)</a>
+            </div>
+
+            @if (Model.ExcelPencere && Model.Uyari is not null)
+            {
+                <p class="uyari">@Model.Uyari</p>
+            }
+
+            <div class="excel-bilgi-kutu">
+                <strong>Nasıl Çalışır?</strong>
+                <p>1. Sağ üstteki <b>Örnek Excel İndir (.xlsx)</b> butonuyla hazır şablonu indirin (veya kendi üye listenizi kullanın).<br />
+                   2. <b>Ad Soyad</b>, <b>Grup</b>, <b>T.C. Kimlik No</b>, <b>Telefon</b>, <b>E-posta</b>, <b>Adres</b>, <b>Durum</b> ve <b>Üye Giriş Tarihi</b> sütunlarını doldurun.<br />
+                   3. Dosyayı aşağıya sürükleyip bırakın veya seçin; mükerrer T.C. kayıtları otomatik atlanarak yeni üyeler saniyeler içinde eklenir.</p>
+            </div>
+
+            <label>Grup Sütunu Boş Olanlar İçin Varsayılan Grup
+                <select name="VarsayilanGrupId">
+                    @foreach (var g in Model.Gruplar)
+                    {
+                        <option value="@g.Id">@g.Ad @(g.Aidatli ? "(aidatlı)" : "(aidatsız)")</option>
+                    }
+                </select>
+            </label>
+
+            <label class="excel-yukle-alan" id="uye-excel-drop" for="uye-excel-dosya">
+                <input type="file" id="uye-excel-dosya" name="ExcelDosya" accept=".xlsx,.xls,.xlsm,.ods,.csv" required hidden />
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <strong id="uye-excel-dosya-ad">Excel veya CSV dosyasını buraya sürükleyin ya da tıklayıp seçin</strong>
+                <span>Desteklenen formatlar: .xlsx, .xls, .csv, .ods (En fazla 10 MB)</span>
+            </label>
+
+            <label class="excel-oto-onay">
+                <input type="checkbox" id="uye-excel-oto" checked />
+                <span>Dosya seçildiğinde bekletmeden otomatik olarak üyeleri ekle</span>
+            </label>
+
+            <div class="form-aksiyon">
+                <button type="submit" id="uye-excel-gonder">Üyeleri Hızlıca Ekle</button>
+                <a class="btn-ince" id="uye-excel-kapat" href="@Model.ListeAdres()">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+(function () {
+    var acBtn = document.getElementById("btn-excel-ac");
+    var arka = document.getElementById("uye-excel-arka");
+    var kapatBtn = document.getElementById("uye-excel-kapat");
+    var form = document.getElementById("uye-excel-form");
+    var inp = document.getElementById("uye-excel-dosya");
+    var drop = document.getElementById("uye-excel-drop");
+    var adEl = document.getElementById("uye-excel-dosya-ad");
+    var oto = document.getElementById("uye-excel-oto");
+    var gonderBtn = document.getElementById("uye-excel-gonder");
+    if (!arka || !form || !inp) return;
+
+    if (acBtn) {
+        acBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            arka.hidden = false;
+        });
+    }
+    if (kapatBtn) {
+        kapatBtn.addEventListener("click", function (e) {
+            if (!/\bexcel=1\b/.test(location.search)) {
+                e.preventDefault();
+                arka.hidden = true;
+            }
+        });
+    }
+    arka.addEventListener("click", function (e) {
+        if (e.target !== arka) return;
+        if (/\bexcel=1\b/.test(location.search)) {
+            location.assign(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ListeAdres())));
+        } else {
+            arka.hidden = true;
+        }
+    });
+
+    function dosyaSecildi() {
+        var f = inp.files && inp.files[0];
+        if (!f) return;
+        if (adEl) adEl.textContent = "Seçilen dosya: " + f.name;
+        if (oto && oto.checked) {
+            if (gonderBtn) {
+                gonderBtn.disabled = true;
+                gonderBtn.textContent = "Üyeler ekleniyor...";
+            }
+            form.submit();
+        }
+    }
+
+    inp.addEventListener("change", dosyaSecildi);
+
+    if (drop) {
+        ["dragenter", "dragover"].forEach(function (evName) {
+            drop.addEventListener(evName, function (e) {
+                e.preventDefault();
+                drop.classList.add("surukle");
+            });
+        });
+        ["dragleave", "drop"].forEach(function (evName) {
+            drop.addEventListener(evName, function (e) {
+                e.preventDefault();
+                drop.classList.remove("surukle");
+            });
+        });
+        drop.addEventListener("drop", function (e) {
+            var dt = e.dataTransfer;
+            if (!dt || !dt.files || !dt.files.length) return;
+            inp.files = dt.files;
+            dosyaSecildi();
+        });
+    }
+})();
+</script>

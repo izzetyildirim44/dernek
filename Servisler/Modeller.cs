@@ -50,6 +50,18 @@ public sealed class UyeAdKayit
     public string Tc { get; set; } = "";
 }
 
+public sealed class UyeExcelSatir
+{
+    public string AdSoyad { get; set; } = "";
+    public string Grup { get; set; } = "";
+    public string Tc { get; set; } = "";
+    public string Telefon { get; set; } = "";
+    public string Eposta { get; set; } = "";
+    public string Adres { get; set; } = "";
+    public string Durum { get; set; } = "Aktif";
+    public string GirisTarih { get; set; } = "";
+}
+
 public sealed class SayfaCubugu
 {
     public const int Boyut = 20;

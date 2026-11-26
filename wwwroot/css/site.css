@@ -2657,3 +2657,109 @@ body:has(.uye-sayfa.yazdir) .icerik {
     color: #000 !important;
   }
 }
+
+/* ==========================================================================
+   ÜYELER — EXCEL ŞABLON VE HIZLI TOPLU ÜYE AKTARIMI
+   ========================================================================== */
+.uye-pencere-arka[hidden] {
+  display: none !important;
+}
+
+.btn-ornek-excel {
+  padding: 7.5px 12px;
+  white-space: nowrap;
+}
+
+.btn-excel-ekle {
+  background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+  color: #031c13 !important;
+  border-color: rgba(167, 243, 208, 0.45) !important;
+  text-decoration: none;
+  padding: 7.5px 13px !important;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.24) !important;
+}
+
+.btn-excel-ekle:hover {
+  filter: brightness(1.07);
+}
+
+.uye-excel-pencere {
+  max-width: 680px;
+}
+
+.excel-bilgi-kutu {
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: rgba(4, 9, 24, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  display: grid;
+  gap: 5px;
+}
+
+.excel-bilgi-kutu strong {
+  font-family: var(--font-baslik);
+  font-size: 13.5px;
+  color: var(--turkuaz);
+}
+
+.excel-bilgi-kutu p {
+  margin: 0;
+  font-size: 12.8px;
+  line-height: 1.55;
+  color: var(--soluk);
+}
+
+.excel-yukle-alan {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px !important;
+  padding: 24px 18px;
+  border-radius: 14px;
+  border: 2px dashed rgba(243, 210, 138, 0.36);
+  background: rgba(4, 9, 24, 0.52);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.excel-yukle-alan svg {
+  color: var(--altin);
+}
+
+.excel-yukle-alan strong {
+  font-family: var(--font-baslik);
+  font-size: 14px;
+  color: var(--yazi);
+}
+
+.excel-yukle-alan span {
+  font-size: 12px;
+  color: var(--soluk-2);
+}
+
+.excel-yukle-alan:hover,
+.excel-yukle-alan.surukle {
+  border-color: var(--altin);
+  background: rgba(243, 210, 138, 0.09);
+}
+
+.excel-oto-onay {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 9px !important;
+  cursor: pointer;
+  font-size: 13px !important;
+  color: var(--yazi) !important;
+}
+
+.excel-oto-onay input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--zumrut);
+  cursor: pointer;
+}
